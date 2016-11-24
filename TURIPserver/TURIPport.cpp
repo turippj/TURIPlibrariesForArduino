@@ -1,6 +1,6 @@
 #include "TURIPserver.h"
 
-TURIPport::TURIPport(
+cl_TURIPport::cl_TURIPport(
   uint8_t port, void* data, TURIPdataType type,
   TURIPportPermission permission)
 {
@@ -14,7 +14,7 @@ TURIPport::TURIPport(
   this->fn_postCallInWrite = NULL;
 }
 
-TURIPport::TURIPport(
+cl_TURIPport::cl_TURIPport(
   uint8_t port, void* data, TURIPdataType type,
   TURIPportPermission permission,
   int (*fn_preCallInRead)(void),
@@ -32,7 +32,7 @@ TURIPport::TURIPport(
   this->fn_postCallInWrite = fn_postCallInWrite;
 }
 
-int TURIPport::read(void* data)
+int cl_TURIPport::read(void* data)
 {
   if(this->permission != READ && this->permission != READWRITE){
     return -1;
@@ -41,7 +41,7 @@ int TURIPport::read(void* data)
   return 0;
 }
 
-int TURIPport::write(const void* data)
+int cl_TURIPport::write(const void* data)
 {
   if(this->permission != WRITE && this->permission != READWRITE){
     return -1;
@@ -50,7 +50,7 @@ int TURIPport::write(const void* data)
   return 0;
 }
 
-int getDatasize(const void* data){
+int cl_TURIPport::getDatasize(const void* data){
   switch(this->type){
     case INT8:
     case UINT8:

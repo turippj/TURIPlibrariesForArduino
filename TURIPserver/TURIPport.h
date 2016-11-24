@@ -14,16 +14,16 @@ typedef enum en_TURIPportPermission{
   DENY, READ, WRITE, READWRITE
 } TURIPportPermission;
 
-class TURIPport{
+class cl_TURIPport{
 public:
   /*
   コンストラクタ
   */
-  TURIPport(
+  cl_TURIPport(
     uint8_t port, void* data, TURIPdataType type,
     TURIPportPermission permission);
 
-  TURIPport(
+  cl_TURIPport(
     uint8_t port, void* data, TURIPdataType type,
     TURIPportPermission permission,
     int (*fn_preCallInRead)(void),
