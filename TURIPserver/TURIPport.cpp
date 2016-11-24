@@ -32,12 +32,13 @@ cl_TURIPport::cl_TURIPport(
   this->fn_postCallInWrite = fn_postCallInWrite;
 }
 
-int cl_TURIPport::read(void* data)
+int cl_TURIPport::read(void** data)
 {
   if(this->permission != READ && this->permission != READWRITE){
     return -1;
   }
-  memcpy(data, this->data, getDatasize(data));
+  // memcpy(data, this->data, getDatasize(data));
+  data = this->data;
   return 0;
 }
 

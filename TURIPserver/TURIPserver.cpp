@@ -44,7 +44,7 @@ int cl_TURIPserver::add(
 int cl_TURIPserver::read(uint8_t port, void* data){
   for(int i = 0; i < numof_port; i++){
     if(list_port[i]->port == port){
-      return list_port[i]->read(data);
+      return list_port[i]->read(&data);
     }
   }
   return -1;
