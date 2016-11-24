@@ -32,13 +32,12 @@ cl_TURIPport::cl_TURIPport(
   this->fn_postCallInWrite = fn_postCallInWrite;
 }
 
-int cl_TURIPport::read(void** data)
+int cl_TURIPport::read(void* data)
 {
   if(this->permission != READ && this->permission != READWRITE){
     return -1;
   }
-  // memcpy(data, this->data, getDatasize(data));
-  data = this->data;
+  memcpy(data, this->data, getDatasize(data));
   return 0;
 }
 
@@ -70,6 +69,33 @@ int cl_TURIPport::getDatasize(const void* data){
     case STRING:
       for(int i=0;;i++){
         if((const char*)((const char*)data + i) == '\0'){
+          return i+1;
+        }
+      }
+    default:
+      return -1;
+  }
+}
+
+int cl_TURIPport::getDatasize(){
+  switch(this->type){
+    case INT8:
+    case UINT8:
+      return 1;
+    case INT16:
+    case UINT16:
+      return 2;
+    case INT32:
+    case UINT32:
+    case FLOAT32:
+      return 4;
+    case INT64:
+    case UINT64:
+    case FLOAT64:
+      return 8;
+    case STRING:
+      for(int i=0;;i++){
+        if((const char*)((const char*)this->data + i) == '\0'){
           return i+1;
         }
       }

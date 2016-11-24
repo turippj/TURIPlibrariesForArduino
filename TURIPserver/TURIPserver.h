@@ -19,7 +19,9 @@ public:
     int (*fn_postCallInWrite)(void));
   int read(uint8_t port, void* data);
   int write(uint8_t port, const void* data);
+  int isPortExist(uint8_t port);
   TURIPdataType getType(uint8_t port);
+  int getSizeofPort(uint8_t port);
 
 private:
   cl_TURIPport** list_port;

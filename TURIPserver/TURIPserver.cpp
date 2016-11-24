@@ -44,7 +44,7 @@ int cl_TURIPserver::add(
 int cl_TURIPserver::read(uint8_t port, void* data){
   for(int i = 0; i < numof_port; i++){
     if(list_port[i]->port == port){
-      return list_port[i]->read(&data);
+      return list_port[i]->read(data);
     }
   }
   return -1;
@@ -63,6 +63,24 @@ TURIPdataType cl_TURIPserver::getType(uint8_t port){
   for(int i = 0; i < numof_port; i++){
     if(list_port[i]->port == port){
       return list_port[i]->type;
+    }
+  }
+  return -1;
+}
+
+int cl_TURIPserver::isPortExist(uint8_t port){
+  for(int i = 0; i < numof_port; i++){
+    if(list_port[i]->port == port){
+      return 0;
+    }
+  }
+  return -1;
+}
+
+int cl_TURIPserver::getSizeofPort(uint8_t port){
+  for(int i = 0; i < numof_port; i++){
+    if(list_port[i]->port == port){
+      return list_port[i]->getDatasize();
     }
   }
   return -1;
