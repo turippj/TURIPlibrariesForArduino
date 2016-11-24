@@ -6,18 +6,28 @@
 class cl_TURIPserver{
 public:
   cl_TURIPserver();
-  int init(uint32_t model, uint32_t serial);
-  TURIPport* newPort(uint8_t port, void* data, size_t size);
-  TURIPport* newPort(uint8_t port, char* data, size_t size);
-  template <typename T> TURIPport* newPort(uint8_t port, T* data);
-  TURIPport* getPort(uint8_t port);
-private:
-  uint32_t Model, Serial;
-  int Numof_port, Sizeof_ary_p_port;
-  TURIPport** Ary_p_port;
+  void begin(uint32_t model, uint32_t serial);
+  int add(
+    uint8_t port, void* data, TURIPdataType type,
+    TURIPportPermission permission);
+  int add(
+    uint8_t port, void* data, TURIPdataType type,
+    TURIPportPermission permission,
+    int (*fn_preCallInRead)(void),
+    int (*fn_preCallInWrite)(void),
+    int (*fn_postCallInRead)(void),
+    int (*fn_postCallInWrite)(void));
+  int read(uint8_t port, void* data);
+  int write(uint8_t port, const void* data);
+  int isPortExist(uint8_t port);
+  TURIPdataType getType(uint8_t port);
+  int getSizeofPort(uint8_t port);
 
-  template <typename T> void setDatatype(TURIPport* port, T* data);
+private:
+  cl_TURIPport** list_port;
+  int numof_port;
+  uint32_t model, serial;
 };
-extern cl_TURIPserver TURIPslave;
+extern cl_TURIPserver TURIPserver;
 
 #endif
