@@ -4,15 +4,14 @@ cl_TURIPserver TURIPserver;
 
 cl_TURIPserver::cl_TURIPserver(){
   numof_port = 0;
-  list_port = new TURIPport*[10];
+  list_port = new cl_TURIPport*[10];
 }
 
-int cl_TURIPserver::begin(uint32_t model, uint32_t serial){
-  this.model = model;
-  this.serial = serial;
-  add(65, this->model, UINT32, READ);
-  add(66, this->serial, UINT32, READ);
-  return 0;
+void cl_TURIPserver::begin(uint32_t model, uint32_t serial){
+  this->model = model;
+  this->serial = serial;
+  add(65, &this->model, UINT32, READ);
+  add(66, &this->serial, UINT32, READ);
 }
 
 int cl_TURIPserver::add(
@@ -43,8 +42,8 @@ int cl_TURIPserver::add(
 
 int cl_TURIPserver::read(uint8_t port, void* data){
   for(int i = 0; i < numof_port; i++){
-    if(list_port[i]->port == port){
-      return list_port[i]->read(data);
+    if(list_port[i]->getPortnum() == port){
+      return list_port[i]->read(&data);
     }
   }
   return -1;
@@ -52,7 +51,7 @@ int cl_TURIPserver::read(uint8_t port, void* data){
 
 int cl_TURIPserver::write(uint8_t port, const void* data){
   for(int i = 0; i < numof_port; i++){
-    if(list_port[i]->port == port){
+    if(list_port[i]->getPortnum() == port){
       return list_port[i]->write(data);
     }
   }
@@ -61,16 +60,16 @@ int cl_TURIPserver::write(uint8_t port, const void* data){
 
 TURIPdataType cl_TURIPserver::getType(uint8_t port){
   for(int i = 0; i < numof_port; i++){
-    if(list_port[i]->port == port){
-      return list_port[i]->type;
+    if(list_port[i]->getPortnum() == port){
+      return list_port[i]->getDataType();
     }
   }
-  return -1;
+  return BINARY;
 }
 
 int cl_TURIPserver::isPortExist(uint8_t port){
   for(int i = 0; i < numof_port; i++){
-    if(list_port[i]->port == port){
+    if(list_port[i]->getPortnum() == port){
       return 0;
     }
   }
@@ -79,7 +78,7 @@ int cl_TURIPserver::isPortExist(uint8_t port){
 
 int cl_TURIPserver::getSizeofPort(uint8_t port){
   for(int i = 0; i < numof_port; i++){
-    if(list_port[i]->port == port){
+    if(list_port[i]->getPortnum() == port){
       return list_port[i]->getDatasize();
     }
   }

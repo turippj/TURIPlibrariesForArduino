@@ -2,8 +2,8 @@
 #include "TURIPonSPIserver.h"
 using namespace ns_TURIPonSPIserver;
 
-volatile struct st_TURIPonSPIserver_buffer ns_TURIPonSPIserver::rxBuf;
-volatile struct st_TURIPonSPIserver_buffer ns_TURIPonSPIserver::txBuf;
+struct st_TURIPonSPIserver_buffer ns_TURIPonSPIserver::rxBuf;
+struct st_TURIPonSPIserver_buffer ns_TURIPonSPIserver::txBuf;
 cl_TURIPonSPIserver TURIPonSPIserver;
 
 cl_TURIPonSPIserver::cl_TURIPonSPIserver(){
@@ -56,7 +56,7 @@ void cl_TURIPonSPIserver::update(){
       if(rxBuf.writePoint > sizeof_data){
         // データが十分に揃っている場合
         //　ユーザー領域へデータをコピー
-        TURIPserver.write(&rxBuf.buffer[1]);
+        TURIPserver.write(port, &rxBuf.buffer[1]);
         noInterrupts();
         //バッファのリセット
         rxBuf.writePoint = 0;
@@ -78,7 +78,7 @@ void cl_TURIPonSPIserver::update(){
       txBuf.readPoint = 0;
       // 転送
       txBuf.buffer[txBuf.writePoint++] = 0xC0;
-      TURIPserver.read(txBuf.buffer[txBuf.writePoint]);
+      TURIPserver.read(port, &txBuf.buffer[txBuf.writePoint]);
       interrupts();
 
     }

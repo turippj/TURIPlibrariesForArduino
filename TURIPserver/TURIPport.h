@@ -2,7 +2,7 @@
 #define TURIP_PORT_H
 
 typedef enum en_TURIPdataType{
-  BIN, STRING,
+  BINARY, STRING,
   INT8, UINT8,
   INT16, UINT16,
   INT32, UINT32,
@@ -47,6 +47,17 @@ public:
   */
   int write(const void* data);
 
+  /*
+  int getDatasize(): ポート内データのデータサイズを取得する
+  const void* data: サイズを調べるデータのポインタ
+  return: 成功: データサイズ(bytes), 失敗: -1
+  */
+  int getDatasize(const void* data);
+  int getDatasize();
+
+  uint8_t getPortnum();
+  TURIPdataType getDataType();
+
 private:
   // uint8_t port: このポートのポート番号
   uint8_t port;
@@ -74,12 +85,6 @@ private:
   int (*fn_postCallInRead)(void);
   int (*fn_postCallInWrite)(void);
 
-  /*
-  int getDatasize(): ポート内データのデータサイズを取得する
-  const void* data: サイズを調べるデータのポインタ
-  return: 成功: データサイズ(bytes), 失敗: -1
-  */
-  int getDatasize(const void* data);
 };
 
 #endif

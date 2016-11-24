@@ -103,3 +103,11 @@ int cl_TURIPport::getDatasize(){
       return -1;
   }
 }
+
+uint8_t cl_TURIPport::getPortnum(){
+  return port;
+}
+
+TURIPdataType cl_TURIPport::getDataType(){
+  return type;
+}

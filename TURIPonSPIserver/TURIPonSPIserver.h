@@ -4,18 +4,17 @@
 #include "TURIPserver.h"
 
 struct st_TURIPonSPIserver_buffer{
-  volatile uint8_t* buffer;
-  volatile int readPoint, writePoint, maxLength;
+  uint8_t* buffer;
+  int readPoint, writePoint, maxLength;
 };
 
 class cl_TURIPonSPIserver{
 public:
   cl_TURIPonSPIserver();
 
-  void begin(uint32_t model, uint32_t serial);
+  void begin();
   /*
-  void begin(uint32_t model, uint32_t serial)
-  初期化動作を行う（SPI通信の有効化、IDの登録）
+  初期化動作を行う（SPI通信の有効化）
   */
 
   void update();
@@ -29,7 +28,7 @@ public:
 };
 
 namespace ns_TURIPonSPIserver{
-  extern volatile struct st_TURIPonSPIserver_buffer rxBuf,txBuf;
+  extern struct st_TURIPonSPIserver_buffer rxBuf,txBuf;
 }
 
 extern cl_TURIPonSPIserver TURIPonSPIserver;
