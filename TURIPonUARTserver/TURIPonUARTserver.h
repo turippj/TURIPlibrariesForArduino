@@ -1,19 +1,26 @@
 #ifndef TURIP_ON_UART_SERVER_H
 #define TURIP_ON_UART_SERVER_H
+
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <stdlib.h>
+#include <string.h>
 #include "TURIPserver.h"
 
-StaticJsonBuffer<400> jsonBuffer;
 
-class TURIPonUARTserver{
+class cl_TURIPonUARTserver{
 public:
   void begin();
-  void put();
-  void get();
+  /*
+  初期化動作を行う(UART通信の開始)
+  */
 
-  uint8_t  tstatus = 500;
-  char* CLIENT_JSON;
-  char* endptr;
-}
+  void communicate();
+  /*
+  clientの要求を受け付けてから返答を返すまでやるやつ
+  */
+};
+
+extern cl_TURIPonUARTserver TURIPonUARTserver;
+
+#endif
