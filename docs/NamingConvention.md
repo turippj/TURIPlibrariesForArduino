@@ -13,16 +13,16 @@ This document defines naming convention of this liblaries.
 
 ### 型名表記の一覧
 
- | 型                    | 表記      |
- |:---------------------|:---------|
- |ブール型(boolean)       | b, B     |
- |整数型(int, long)       | i, I     |
- |小数点型(float, double) | f, F     |
- |文字型(char, string)    | s, S     |
- |クラス(class)           | c, C     |
- |構造体(struct)          | st, St   |
- |列挙体(enum)            | en, En   |
- |共用体(union)           | un, Un   |
+| 型                    　| 表記       |
+| :--------------------- | :--------- |
+| ブール型(boolean)       | b, B   　　|
+| 整数型(int, long)       | i, I   　　|
+| 小数点型(float, double) | f, F   　　|
+| 文字型(char, string)    | s, S    　 |
+| クラス(class)           | c, C    　 |
+| 構造体(struct)          | st, St     |
+| 列挙体(enum)            | en, En  　 |
+| 共用体(union)           | un, Un  　 |
 
 ### 例
 
