@@ -1,76 +1,96 @@
 #include "TURIPclient.h"
+// #include <Arduino.h>
+
+TURIPclientPeripheral::TURIPclientPeripheral(){
+  numofDevices = 0;
+}
+
+int TURIPclientPeripheral::scan(uint64_t* idList[]){
+  return -1;
+}
+
+int TURIPclientPeripheral::write(uint64_t id, int port, TURIPdataType type, void* data){
+  return -1;
+}
+
+int TURIPclientPeripheral::read(uint64_t id, int port, TURIPdataType type, void* data){
+  return -1;
+}
+
+
+
 
 cl_TURIPclient TURIPclient;
 
-/*
-## デバッグ用関数
-IDをシリアル出力するよ
-*/
-void printId(uint64_t id){
-  union un_id{
-    uint64_t id64;
-    byte id8[8];
-  } idConv;
-  idConv.id64 = id;
-  for(int i = 7; i >= 0; i--){
-    Serial.print(idConv.id8[i], HEX);
-    if(i) Serial.print(" ");
-  }
-}
-
-/*
-## cl_TURIPdevice
-*/
-cl_TURIPdevice::cl_TURIPdevice(){
-  read = NULL;
-  write = NULL;
-}
-
-cl_TURIPdevice::cl_TURIPdevice(uint64_t id){
-  this->id = id;
-  read = NULL;
-  write = NULL;
-}
-
-/*
-## cl_TURIPperipheral
-*/
-cl_TURIPperipheral::cl_TURIPperipheral(){
-  numof_device = 0;
-  *device = NULL;
-  scan = NULL;
-}
-
-/*
-## cl_TURIPclient
-*/
 cl_TURIPclient::cl_TURIPclient(){
-  numof_device = 0;
-  numof_peripheral = 0;
-  sizeof_deviceList = 10;
-  sizeof_peripheralList = 3;
-  device = new cl_TURIPdevice*[sizeof_deviceList];
-  peripheral = new cl_TURIPperipheral*[sizeof_peripheralList];
+  numofPeripherals = 0;
+  numofDevices = 0;
+}
+
+int cl_TURIPclient::addPeripheral(TURIPclientPeripheral* peripheral){
+  peripheralList[numofPeripherals++] = peripheral;
+  return 0;
+}
+
+TURIPclientPeripheral* cl_TURIPclient::getPeripheral(uint64_t id){
+  for(int i=0; i<numofPeripherals; i++){
+    uint64_t* idListInPeripheral;
+    int n = peripheralList[i]->scan(&idListInPeripheral);
+    for(int j=0; j<n; j++){
+      if(idListInPeripheral[j] == id) return peripheralList[i];
+    }
+  }
+  return NULL;
 }
 
 int cl_TURIPclient::scan(){
-  int numof_device = 0;
-  for(unsigned int i = 0; i < numof_peripheral; i++){
-    peripheral[i]->scan();
-    for(int j = 0; j < peripheral[i]->numof_device; j++){
-      device[numof_device++] = peripheral[i]->device[j];
+  numofDevices = 0;
+  for(int i=0; i<numofPeripherals; i++){
+    uint64_t* idListInPeripheral;
+    int n = peripheralList[i]->scan(&idListInPeripheral);
+    for(int j=0; j<n; j++){
+      idList[numofDevices + j] = idListInPeripheral[j];
     }
+    numofDevices += n;
   }
-  this->numof_device = numof_device;
-  return numof_device;
+  return numofDevices;
 }
 
-int cl_TURIPclient::addPeripheral(cl_TURIPperipheral* peripheral){
-  this->peripheral[numof_peripheral++] = peripheral;
-  return numof_peripheral;
+int cl_TURIPclient::scan(uint64_t* idList[]){
+  scan();
+  *idList = this->idList;
+  return numofDevices;
 }
 
-int cl_TURIPclient::addDevice(cl_TURIPdevice* device){
-  this->device[numof_device++] = device;
-  return numof_device;
+int cl_TURIPclient::isExist(uint64_t id){
+  for(int i=0; i<numofDevices; i++){
+    if(idList[i] == id) return 0;
+  }
+  return -1;
+}
+
+
+
+
+TURIP::TURIP(){
+  id = 0;
+  peripheral = NULL;
+}
+
+int TURIP::attach(uint64_t id){
+  peripheral = TURIPclient.getPeripheral(id);
+  if(peripheral == NULL) return -1;
+  this->id = id;
+  // Serial.println("attached!");
+  return 0;
+}
+
+int TURIP::read(int port, TURIPdataType type, void* data){
+  if(peripheral == NULL) return -1;
+  return peripheral->read(id, port, type, data);
+}
+
+int TURIP::write(int port, TURIPdataType type, void* data){
+  if(peripheral == NULL) return -1;
+  return peripheral->write(id, port, type, data);
 }

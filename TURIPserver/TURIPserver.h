@@ -1,32 +1,219 @@
 #ifndef TURIP_SERVER_H
 #define TURIP_SERVER_H
-#include <Arduino.h>
-#include "TURIPport.h"
 
-class cl_TURIPserver{
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+#include "TURIPdataType.h"
+#include "TURIPportPermission.h"
+
+/*
+class TURIPport
+
+TURIPのポートの管理を行う。
+1つのインスタンス毎に1つのポートを管理する。
+*/
+class TURIPport{
 public:
-  cl_TURIPserver();
-  void begin(uint32_t model, uint32_t serial);
-  int add(
-    uint8_t port, void* data, TURIPdataType type,
-    TURIPportPermission permission);
-  int add(
-    uint8_t port, void* data, TURIPdataType type,
-    TURIPportPermission permission,
-    int (*fn_preCallInRead)(void),
-    int (*fn_preCallInWrite)(void),
-    int (*fn_postCallInRead)(void),
-    int (*fn_postCallInWrite)(void));
-  int read(uint8_t port, void* data);
-  int write(uint8_t port, const void* data);
-  int isPortExist(uint8_t port);
-  TURIPdataType getType(uint8_t port);
-  int getSizeofPort(uint8_t port);
+  /*
+  コンストラクタ
+
+  ポートの初期設定を行う。
+
+  int portNum: 割り当てるポート番号
+  TURIPdataType type: TURIP仕様のデータ型
+  */
+  TURIPport(int portNum, TURIPdataType type);
+
+  /*
+  setReadProcess(int (*function)(void* data))
+
+  clientからReadされたときに実行する関数を登録する。
+  最新のデータを確実に送るために用いる。
+  登録した関数は、clientにデータを送る前に実行される。
+
+  int (*function)(): 実行する関数(NULLで無効化)
+    return: 成功:0, 失敗:-1
+  */
+  void setReadProcess(int (*function)());
+
+  /*
+  setWriteProcess(int (*function)())
+
+  clientからWriteされたされたときに実行する関数を登録する。
+  writeされた直後かつ、ステータスを返す前に実行したい関数のトリガ。
+  登録した関数は、writeMemory()中で実行される。
+
+  int (*function)(): 実行する関数(NULLで無効化)
+    return: 成功:0, 失敗:-1
+  */
+  void setWriteProcess(int (*function)());
+
+  /*
+  template <typename T> T read()
+
+  ポートからデータを読み取る。
+
+  return: データ
+  */
+  template <typename T> T read(){
+    return *(T*)(this->data);
+  }
+
+  /*
+  template <typename T> void write(T data)
+
+  ポートへデータを書き込む。
+
+  data: 書き込むデータ
+  */
+  template <typename T> void write(T data){
+    memcpy(this->data, &data, sizeofTuripDataType(this->type));
+  }
+
+  /*
+  void* readMemory()
+
+  物理層ライブラリがポートからデータを読み取るときに使う。
+  また、setReadProcess()で登録された関数を読み取り前に実行する。
+
+  return: 成功:データ格納領域のポインタ, 失敗:NULLポインタ
+  */
+  void* readMemory();
+
+  /*
+  int writeMemory(void* data)
+
+  物理層ライブラリがポートへデータを書き出すときに使う。
+  また、setWriteProcess()で登録された関数を書き出し後に実行する。
+
+  void* data: バッファ領域の先頭アドレス
+
+  return: 成功:0, 失敗:-1
+  */
+  int writeMemory(void* data);
+
+  /*
+  TURIPdataType getType()
+
+  TURIPデータ型を返す
+
+  return: このポートのTURIPデータ型
+  */
+  TURIPdataType getType();
+
+  /*
+  uint8_t port
+
+  このポートのポート番号(範囲: 1-126)
+  */
+  int portNumber;
+
+  /*
+  TURIPportPermission permission
+
+  このポートのパーミッション
+  */
+  TURIPportPermission permission;
 
 private:
-  cl_TURIPport** list_port;
-  int numof_port;
-  uint32_t model, serial;
+  /*
+  TURIPdataType type
+
+  このポートのTURIPデータ型
+  データ型はデータ保管領域のサイズに関わるので途中変更できない
+  */
+  TURIPdataType type;
+
+  /*
+  void* data
+
+  データ保管領域の先頭アドレス
+  適宜サイズを変更して使用する。
+  */
+  void* volatile data;
+
+  /*
+  int (*fn_readProcess)(void)
+
+  clientからReadされたときに実行する関数。
+  関数は、clientにデータを送る前に実行される。
+  実行する関数が無い場合はNULLが入る(デフォルト)。
+
+  return: 成功:0, 失敗:-1
+  */
+  int (*fn_readProcess)(void);
+
+  /*
+  int (*fn_writeProcess)(void)
+
+  clientからWriteされたときに実行する関数。
+  関数は、clientからデータを受け取り、レスポンスを返す前に実行される。
+  実行する関数が無い場合はNULLが入る(デフォルト)。
+
+  return: 成功:0, 失敗:-1
+  */
+  int (*fn_writeProcess)(void);
+};
+
+
+/*
+class cl_TURIPserver
+
+ポートの集中管理を行う。
+cl_TURIPserver TURIPserverのみ存在する。
+*/
+class cl_TURIPserver{
+public:
+  /*
+  コンストラクタ
+  */
+  cl_TURIPserver();
+
+  /*
+  void begin(uint32_t model, uint32_t serial)
+
+  サーバ機能を有効化させる。
+
+  uint32_t model: TURIP型番
+  uint32_t serial: TURIPシリアル番号
+  */
+  void begin(uint32_t model, uint32_t serial);
+
+  /*
+  int add(TURIPport* newPort)
+
+  ポートを追加する。
+
+  TURIPport* newPort: 追加するTURIPportオブジェクトのポインタ
+
+  return: 0:成功 -1:失敗
+  */
+  int add(TURIPport* newPort);
+
+  /*
+  TURIPport* get(uint8_t port)
+
+  ポートを検索する
+
+  uint8_t port: 呼び出すポート番号
+
+  return: 成功:該当するTURIPportオブジェクトのポインタ 失敗:NULLポインタ
+  */
+  TURIPport* get(uint8_t port);
+
+private:
+  // 保有しているポートの数
+  int numofPorts;
+
+  // TURIPportオブジェクトポインタの保管
+  TURIPport* portList[32];
+
+  // TURIP型番を取り扱うTURIPportオブジェクト
+  TURIPport* portOfModel;
+
+  // TURIPシリアル番号を取り扱うTURIPportオブジェクト
+  TURIPport* portOfSerial;
 };
 extern cl_TURIPserver TURIPserver;
 

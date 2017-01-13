@@ -1,53 +1,47 @@
 #ifndef TURIP_CLIENT_H
 #define TURIP_CLIENT_H
-#include <Arduino.h>
 
-class cl_TURIPdevice{
-public: // 公開関数
-  cl_TURIPdevice(uint64_t id);
-  cl_TURIPdevice();
-  int (*read)(uint64_t, uint8_t, void*, size_t);
-  int (*write)(uint64_t, uint8_t, void*, size_t);
-public: // 公開変数
-  uint64_t id;
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+#include "TURIPdataType.h"
+
+class TURIPclientPeripheral{
+public:
+  TURIPclientPeripheral();
+  virtual int scan(uint64_t* idList[]);
+  virtual int write(uint64_t id, int port, TURIPdataType type, void* data);
+  virtual int read(uint64_t id, int port, TURIPdataType type, void* data);
+protected:
+  uint64_t idList[16];
+  int numofDevices;
 };
 
-class cl_TURIPperipheral{
-public: // 公開関数
-  cl_TURIPperipheral();
-  int (*scan)();
-public: // 公開変数
-  cl_TURIPdevice** device;
-  int numof_device;
+class TURIP{
+public:
+  TURIP();
+  int attach(uint64_t id);
+  int read(int port, TURIPdataType type, void* data);
+  int write(int port, TURIPdataType type, void* data);
+private:
+  uint64_t id;
+  TURIPclientPeripheral* peripheral;
 };
 
 class cl_TURIPclient{
-public: // 公開関数
-  cl_TURIPclient();
-  int scan();
-  int addPeripheral(cl_TURIPperipheral* peripheral);
-private: // 非公開関数
-  int addDevice(cl_TURIPdevice* device);
-  // int resizeDeviceList(size_t numof_device); TODO: リストを可変配列化する
-  // int resizePeripheralList(size_t numof_device); TODO: リストを可変配列化する
 public:
-  cl_TURIPdevice** device;
-  cl_TURIPperipheral** peripheral;
-  size_t numof_device, sizeof_deviceList;
-  size_t numof_peripheral, sizeof_peripheralList;
+  cl_TURIPclient();
+  int addPeripheral(TURIPclientPeripheral* peripheral);
+  TURIPclientPeripheral* getPeripheral(uint64_t id);
+  int scan();
+  int scan(uint64_t* idList[]);
+  int isExist(uint64_t id);
+private:
+  TURIPclientPeripheral* peripheralList[4];
+  size_t numofPeripherals;
+  uint64_t idList[16];
+  int numofDevices;
 };
 extern cl_TURIPclient TURIPclient;
-
-class TURIP{
-public: // 公開関数
-  TURIP(uint64_t id);
-  TURIP();
-  int begin(uint64_t id);
-  int read(uint8_t port, void* data, size_t datasize);
-  int write(uint8_t port, void* data, size_t datasize);
-private: // 非公開変数
-  uint64_t id;
-  cl_TURIPdevice* device;
-};
 
 #endif
