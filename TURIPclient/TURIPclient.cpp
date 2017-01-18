@@ -1,5 +1,5 @@
 #include "TURIPclient.h"
-// #include <Arduino.h>
+#include <TURIPcommon.h>
 
 TURIPclientPeripheral::TURIPclientPeripheral(){
   numofDevices = 0;

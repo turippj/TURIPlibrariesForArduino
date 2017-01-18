@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include "TURIPdataType.h"
+#include <TURIPcommon.h>
 
 class TURIPclientPeripheral{
 public:
