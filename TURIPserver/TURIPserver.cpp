@@ -5,7 +5,7 @@ TURIPport::TURIPport(int portNum, TURIPdataType type)
   // ポート番号の設定
   this->portNumber = portNum;
 
-  // TURIPデータ型の設定(後で変更不可)
+  // TURIPデータ型の設定
   this->type = type;
 
   // データ保管領域の確保
@@ -32,11 +32,15 @@ void* TURIPport::readMemory(){
 }
 
 int TURIPport::writeMemory(void* data){
-  memcpy(this->data, data, sizeofTuripDataType(this->type));
-  if(this->fn_writeProcess == NULL){
-    return 0;
-  } else{
-    return this->fn_writeProcess();
+  if(this->permission == READWRITE){
+    memcpy(this->data, data, sizeofTuripDataType(this->type));
+    if(this->fn_writeProcess == NULL){
+      return 0;
+    } else{
+      return this->fn_writeProcess();
+    }
+  }else{
+    return -1;
   }
 }
 
@@ -51,6 +55,14 @@ void TURIPport::setWriteProcess(int (*function)()){
 TURIPdataType TURIPport::getType(){
   return this->type;
 }
+
+void TURIPport::setType(TURIPdataType newType){
+  delete[] this->data;
+  this->type = newType;
+  this->data = new uint8_t[sizeofTuripDataType(newType)];
+}
+
+
 
 
 cl_TURIPserver TURIPserver;

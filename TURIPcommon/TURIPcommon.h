@@ -1,5 +1,5 @@
-#ifndef TURIP_DATATYPE_H
-#define TURIP_DATATYPE_H
+#ifndef TURIP_COMMON_H
+#define TURIP_COMMON_H
 
 /*
   TURIPdataType

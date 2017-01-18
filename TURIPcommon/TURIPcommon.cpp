@@ -1,4 +1,4 @@
-#include "TURIPdataType.h"
+#include "TURIPcommon.h"
 
 int sizeofTuripDataType(TURIPdataType type){
   switch(type){

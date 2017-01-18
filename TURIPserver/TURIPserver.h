@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include "TURIPdataType.h"
+#include <TURIPcommon.h>
 #include "TURIPportPermission.h"
 
 /*
@@ -101,6 +101,15 @@ public:
   return: このポートのTURIPデータ型
   */
   TURIPdataType getType();
+
+  /*
+  void setType(TURIPdataType newType)
+
+  このクラスが取り扱うTURIPデータ型を変更する
+
+  TURIPdataType newType: このポートの新しいTURIPデータ型
+  */
+  void setType(TURIPdataType newType);
 
   /*
   uint8_t port
