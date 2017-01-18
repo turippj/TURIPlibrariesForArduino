@@ -4,7 +4,7 @@ cl_TURIPserverSerial TURIPserverSerial;
 
 void cl_TURIPserverSerial::begin(){
   Serial.begin(115200);
-  Serial.println("{\"msg\",\"TURIPserverSerial started.\"}");
+  Serial.println("{\"msg\":\"TURIPserverSerial started.\"}");
   bufferLen = 0;
 }
 
@@ -14,7 +14,7 @@ void cl_TURIPserverSerial::update(){
     buffer[bufferLen++] = c;
     if(bufferLen == 64){
       bufferLen = 0;
-      Serial.println("{\"msg\",\"EROOR: Too long command.\"}");
+      Serial.println("{\"msg\":\"EROOR: Too long command.\"}");
     }
   }else{
     return;
@@ -139,7 +139,7 @@ void cl_TURIPserverSerial::sendResponse(turipJsonRequest* request){
           root.set<float>("data", dataf);
           break;
         case DOUBLE:
-          float datad;
+          double datad;
           memcpy(&datad, port->readMemory(), sizeofTuripDataType(DOUBLE));
           root.set<double>("data", datad);
           break;
