@@ -15,9 +15,8 @@ public:
   TURIPport* portOfData;
   void begin();
 
-private:
-  uint32_t idList[2][16];
-  TURIP* deviceToBridge;
+  TURIP* activeDevice;
+  uint64_t selectedDevId;
 };
 extern  cl_TURIPbridge TURIPbridge;
 
