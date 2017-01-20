@@ -3,7 +3,7 @@
 cl_TURIPserverSerial TURIPserverSerial;
 
 void cl_TURIPserverSerial::begin(){
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial.println("{\"msg\":\"TURIPserverSerial started.\"}");
   bufferLen = 0;
 }
@@ -11,7 +11,7 @@ void cl_TURIPserverSerial::begin(){
 void cl_TURIPserverSerial::update(){
   int c = Serial.read();
   if(c != -1){
-    buffer[bufferLen++] = c;
+    buffer[bufferLen++] = (char)c;
     if(bufferLen == 64){
       bufferLen = 0;
       Serial.println("{\"msg\":\"EROOR: Too long command.\"}");
@@ -60,52 +60,76 @@ turipJsonRequest cl_TURIPserverSerial::parse(char input[]){
   result.data = NULL;
 
   JsonObject& client = jsonBuffer.parseObject(input);
-  result.port = atoi(client["port"]);
+  const char* port   = client["port"];
   const char* method = client["method"];
-  const char* type   = client["type"]; //get時に得られるdataの型
+  const char* type   = client["type"];
+  const char* data   = client["data"];
 
-  if(!strcmp("get", method)){
-    result.method = GET;
-  }else if(!strcmp("post", method)){
-    result.method = POST;
-  }else{
-    result.method = NONE;
+  if(port != NULL){
+    result.port = atoi(port);
   }
-  if(!strcmp(type, "INT8")){
-    result.type = INT8;
-    result.data = new int8_t;
-    int8_t data = atoi(client["data"]);
-    memcpy(result.data, &data, sizeof(int8_t));
-  }else if(!strcmp(type, "INT16")){
-    result.type = INT16;
-    result.data = new int16_t;
-    int16_t data = atoi(client["data"]);
-    memcpy(result.data, &data, sizeof(int16_t));
-  }else if(!strcmp(type, "INT32")){
-    result.type = INT32;
-    result.data = new int32_t;
-    int32_t data = atoi(client["data"]);
-    memcpy(result.data, &data, sizeof(int32_t));
-  }else if(!strcmp(type, "INT64")){
-    result.type = INT64;
-    result.data = new int64_t;
-    int64_t data = atoi(client["data"]);
-    memcpy(result.data, &data, sizeof(int64_t));
-  }else if(!strcmp(type, "FLOAT")){
-    result.type = FLOAT;
-    result.data = new float;
-    float data = atof(client["data"]);
-    memcpy(result.data, &data, sizeof(float));
-  }else if(!strcmp(type, "DOUBLE")){
-    result.type = DOUBLE;
-    result.data = new double;
-    double data = atof(client["data"]);
-    memcpy(result.data, &data, sizeof(double));
-  }else if(!strcmp(type, "BOOL")){
-    result.type = BOOL;
-    result.data = new int8_t;
-    int8_t data = atoi(client["data"]);
-    memcpy(result.data, &data, sizeof(int8_t));
+
+  if(method != NULL){
+    if(!strcmp("get", method)){
+      result.method = GET;
+    }else if(!strcmp("post", method)){
+      result.method = POST;
+    }else{
+      result.method = NONE;
+    }
+  }
+
+  if(type != NULL){
+    if(!strcmp(type, "INT8")){
+      result.type = INT8;
+      result.data = new int8_t;
+      if(data != NULL){
+        int8_t dataBuf = atoi(data);
+        memcpy(result.data, &dataBuf, sizeof(int8_t));
+      }
+    }else if(!strcmp(type, "INT16")){
+      result.type = INT16;
+      result.data = new int16_t;
+      if(data != NULL){
+        int16_t dataBuf = atoi(client["data"]);
+        memcpy(result.data, &dataBuf, sizeof(int16_t));
+      }
+    }else if(!strcmp(type, "INT32")){
+      result.type = INT32;
+      result.data = new int32_t;
+      if(data != NULL){
+        int32_t dataBuf = atoi(client["data"]);
+        memcpy(result.data, &dataBuf, sizeof(int32_t));
+      }
+    }else if(!strcmp(type, "INT64")){
+      result.type = INT64;
+      result.data = new int64_t;
+      if(data != NULL){
+        int64_t dataBuf = atoi(client["data"]);
+        memcpy(result.data, &dataBuf, sizeof(int64_t));
+      }
+    }else if(!strcmp(type, "FLOAT")){
+      result.type = FLOAT;
+      result.data = new float;
+      if(data != NULL){
+        float dataBuf = atof(client["data"]);
+        memcpy(result.data, &dataBuf, sizeof(float));
+      }
+    }else if(!strcmp(type, "DOUBLE")){
+      result.type = DOUBLE;
+      result.data = new double;
+      if(data != NULL){
+        double dataBuf = atof(client["data"]);
+        memcpy(result.data, &dataBuf, sizeof(double));
+      }
+    }else if(!strcmp(type, "BOOL")){
+      result.type = BOOL;
+      result.data = new int8_t;
+      if(data != NULL){
+        int8_t dataBuf = atoi(client["data"]);
+        memcpy(result.data, &dataBuf, sizeof(int8_t));
+      }
+    }
   }
   return result;
 }
