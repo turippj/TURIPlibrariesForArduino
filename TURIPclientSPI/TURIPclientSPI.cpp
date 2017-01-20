@@ -9,7 +9,12 @@ cl_TURIPclientSPI::cl_TURIPclientSPI(){
 }
 
 void cl_TURIPclientSPI::begin(){
+  #ifdef ESP8266
+  SPI.setFrequency(200000);
+  SPI.setDataMode(SPI_MODE0);
+  #else
   SPI.setClockDivider(SPI_CLOCK_DIV16);
+  #endif
   SPI.begin();
   TURIPclient.addPeripheral(this);
 }

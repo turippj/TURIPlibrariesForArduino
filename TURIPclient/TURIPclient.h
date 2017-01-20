@@ -36,11 +36,11 @@ public:
   int scan();
   int scan(uint64_t* idList[]);
   int isExist(uint64_t id);
+  uint64_t idList[16];
+  int numofDevices;
 private:
   TURIPclientPeripheral* peripheralList[4];
   size_t numofPeripherals;
-  uint64_t idList[16];
-  int numofDevices;
 };
 extern cl_TURIPclient TURIPclient;
 
