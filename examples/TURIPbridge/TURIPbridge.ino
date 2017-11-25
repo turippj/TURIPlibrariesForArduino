@@ -1,16 +1,22 @@
-#include <TURIPserver.h>
+#include <TURIPclient>
 #include <TURIPclientSPI.h>
+#include <TURIPserver.h>
 #include <TURIPshell.h>
+
+const uint32_t TURIP_MODEL = 0x00000001;
+const uint32_t TURIP_SERIAL = 0x00000000;
 
 void setup() {
   Serial.begin(9600);
-  
+
   TURIPclientSPI.addPin(6);
   TURIPclientSPI.addPin(7);
   TURIPclientSPI.addPin(8);
   TURIPclientSPI.addPin(9);
   TURIPclientSPI.addPin(10);
   TURIPclientSPI.begin();
+
+  TURIPserver.begin(TURIP_MODEL, TURIP_SERIAL);
 }
 
 void loop() {
@@ -30,4 +36,3 @@ void serialEvent(){
     }
   }
 }
-
