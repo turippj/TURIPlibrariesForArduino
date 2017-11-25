@@ -3,6 +3,8 @@
 #include <Arduino.h>
 #include "TURIPserver.h"
 
+#define TURIPSERVER_PIN_SS 10
+
 struct st_TURIPserverSPI_buffer{
   uint8_t* buffer;
   int readPoint, writePoint, maxLength;

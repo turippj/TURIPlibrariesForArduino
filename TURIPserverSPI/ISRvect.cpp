@@ -14,10 +14,11 @@ ISR(SPI_STC_vect){
   else SPDR = 0xff;
 }
 
-ISR(PCINT0_vect){
-  rxBuf.writePoint = 0;
-  rxBuf.readPoint = 0;
-  txBuf.writePoint = 0;
-  txBuf.readPoint = 0;
-  SPDR = 0xff;
-}
+// Disabled due to conflict with SoftwareSerial.
+// ISR(PCINT0_vect){
+//   rxBuf.writePoint = 0;
+//   rxBuf.readPoint = 0;
+//   txBuf.writePoint = 0;
+//   txBuf.readPoint = 0;
+//   SPDR = 0xff;
+// }

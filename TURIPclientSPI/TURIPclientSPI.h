@@ -5,7 +5,7 @@
 #include "TURIPclient.h"
 
 #define TURIP_ON_SPI_CLIENT_TRANS_DELAY 100
-#define TURIP_ON_SPI_CLIENT_TRANS_RETRY 100
+#define TURIP_ON_SPI_CLIENT_TRANS_RETRY 512
 
 class cl_TURIPclientSPI : public TURIPclientPeripheral{
 public:
@@ -15,6 +15,8 @@ public:
   virtual int scan(uint64_t* idList[]);
   virtual int write(uint64_t id, int port, TURIPdataType type, void* data);
   virtual int read(uint64_t id, int port, TURIPdataType type, void* data);
+  virtual TURIPdataType getType(uint64_t id, int port);
+  virtual int isExist(uint64_t id);
   int readByUseSS(int ss, int port, TURIPdataType type, void* data);
 
 private:

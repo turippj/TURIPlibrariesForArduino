@@ -60,6 +60,10 @@ public:
     return *(T*)(this->data);
   }
 
+  char* read(){
+    return this->data;
+  }
+
   /*
   template <typename T> void write(T data)
 
@@ -69,6 +73,12 @@ public:
   */
   template <typename T> void write(T data){
     memcpy(this->data, &data, sizeofTuripDataType(this->type));
+  }
+
+  void write(const char* data){
+    if(this->stringLength >= strlen(data)){
+      strcpy(this->data, data);
+    }
   }
 
   /*
@@ -112,6 +122,15 @@ public:
   void setType(TURIPdataType newType);
 
   /*
+  void setStrlen(unsigned int length)
+
+  TURIPデータ型が"STRING"のときのサイズを指定する。
+
+  unsigned int length: バッファのサイズ(\0は除く)
+  */
+  void setStrlen(unsigned int length);
+
+  /*
   uint8_t port
 
   このポートのポート番号(範囲: 1-126)
@@ -133,6 +152,13 @@ private:
   データ型はデータ保管領域のサイズに関わるので途中変更できない
   */
   TURIPdataType type;
+
+  /*
+  unsigned int stringLength
+
+  TURIPデータ型が"STRING"のときの\0を除いたバッファサイズ
+  */
+  unsigned int stringLength;
 
   /*
   void* data

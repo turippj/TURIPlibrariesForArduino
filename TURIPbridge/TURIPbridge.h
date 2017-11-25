@@ -7,8 +7,7 @@
 class cl_TURIPbridge{
 public:
   TURIPport* portOfMumofDev;
-  TURIPport* portOfSelectedDeviceModel;
-  TURIPport* portOfSelectedDeviceSerial;
+  TURIPport* portOfSelectedDeviceID;
   TURIPport* portOfPortType;
   TURIPport* portOfDeviceSelector;
   TURIPport* portOfPortSelector;

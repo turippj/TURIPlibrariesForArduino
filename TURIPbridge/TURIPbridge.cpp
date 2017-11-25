@@ -6,16 +6,14 @@ cl_TURIPbridge TURIPbridge;
 
 void cl_TURIPbridge::begin(){
   portOfMumofDev = new TURIPport(80, INT8);
-  portOfSelectedDeviceModel = new TURIPport(81, INT32);
-  portOfSelectedDeviceSerial = new TURIPport(82, INT32);
-  portOfPortType = new TURIPport(83, INT8);
-  portOfDeviceSelector = new TURIPport(84, INT8);
-  portOfPortSelector = new TURIPport(85, INT8);
-  portOfData = new TURIPport(86, INT8);
+  portOfDeviceSelector = new TURIPport(81, INT8);
+  portOfSelectedDeviceID = new TURIPport(82, INT64);
+  portOfPortSelector = new TURIPport(83, INT8);
+  portOfPortType = new TURIPport(84, INT8);
+  portOfData = new TURIPport(85, INT8);
 
   portOfMumofDev->setReadProcess(TURIPbridgeFuncs::scanDevices);
   portOfDeviceSelector->setWriteProcess(TURIPbridgeFuncs::setDevice);
-  // portOfPortSelector->setWriteProcess(TURIPbridgeFuncs::setPort);
   portOfPortType->setWriteProcess(TURIPbridgeFuncs::setPort);
   portOfData->setReadProcess(TURIPbridgeFuncs::getDataOfBridge);
   portOfData->setWriteProcess(TURIPbridgeFuncs::setDataOfBridge);
@@ -32,10 +30,7 @@ int TURIPbridgeFuncs::scanDevices(){
 
 int TURIPbridgeFuncs::setDevice(){
   TURIPbridge.selectedDevId = TURIPclient.idList[TURIPbridge.portOfDeviceSelector->read<uint8_t>()];
-  uint32_t deviceNum = (uint32_t)TURIPbridge.selectedDevId;
-  uint32_t serialNum = (uint32_t)(TURIPbridge.selectedDevId >> 32);
-  TURIPbridge.portOfSelectedDeviceModel->write<uint32_t>(deviceNum);
-  TURIPbridge.portOfSelectedDeviceSerial->write<uint32_t>(serialNum);
+  TURIPbridge.portOfSelectedDeviceID->write<uint64_t>(TURIPbridge.selectedDevId);
   if (TURIPbridge.activeDevice!=NULL){
     delete TURIPbridge.activeDevice;
   }
