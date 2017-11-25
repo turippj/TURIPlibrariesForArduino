@@ -17,7 +17,13 @@ int TURIPclientPeripheral::read(uint64_t id, int port, TURIPdataType type, void*
   return -1;
 }
 
+TURIPdataType TURIPclientPeripheral::getType(uint64_t id, int port){
+  return UNKNOWN;
+}
 
+int TURIPclientPeripheral::isExist(uint64_t id){
+  return 0;
+}
 
 
 cl_TURIPclient TURIPclient;
@@ -33,11 +39,17 @@ int cl_TURIPclient::addPeripheral(TURIPclientPeripheral* peripheral){
 }
 
 TURIPclientPeripheral* cl_TURIPclient::getPeripheral(uint64_t id){
+  // for(int i=0; i<numofPeripherals; i++){
+  //   uint64_t* idListInPeripheral;
+  //   int n = peripheralList[i]->scan(&idListInPeripheral);
+  //   for(int j=0; j<n; j++){
+  //     if(idListInPeripheral[j] == id) return peripheralList[i];
+  //   }
+  // }
+
   for(int i=0; i<numofPeripherals; i++){
-    uint64_t* idListInPeripheral;
-    int n = peripheralList[i]->scan(&idListInPeripheral);
-    for(int j=0; j<n; j++){
-      if(idListInPeripheral[j] == id) return peripheralList[i];
+    if(peripheralList[i]->isExist(id)){
+      return peripheralList[i];
     }
   }
   return NULL;
@@ -79,7 +91,11 @@ TURIP::TURIP(){
 
 int TURIP::attach(uint64_t id){
   peripheral = TURIPclient.getPeripheral(id);
-  if(peripheral == NULL) return -1;
+  if(peripheral == NULL){
+    TURIPclient.scan();
+    peripheral = TURIPclient.getPeripheral(id);
+    if(peripheral == NULL) return -1;
+  }
   this->id = id;
   // Serial.println("attached!");
   return 0;
@@ -93,4 +109,9 @@ int TURIP::read(int port, TURIPdataType type, void* data){
 int TURIP::write(int port, TURIPdataType type, void* data){
   if(peripheral == NULL) return -1;
   return peripheral->write(id, port, type, data);
+}
+
+TURIPdataType TURIP::getType(int port){
+  if(peripheral == NULL) return UNKNOWN;
+  return peripheral->getType(id, port);
 }

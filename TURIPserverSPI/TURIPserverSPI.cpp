@@ -22,13 +22,23 @@ void cl_TURIPserverSPI::begin(){
   SPCR = _BV(SPE) | _BV(SPIE);
 
   // Setting SS interrupt
-  PCMSK0 = _BV(PCINT1);
-  PCICR = PCICR | _BV(PCIE0);
+  // PCMSK0 = _BV(PCINT1);
+  // PCICR = PCICR | _BV(PCIE0);
 
   sei();
 }
 
 void cl_TURIPserverSPI::update(){
+  // If SPI is desabled, buffers are reseted.
+  if(digitalRead(TURIPSERVER_PIN_SS) == HIGH){
+    rxBuf.writePoint = 0;
+    rxBuf.readPoint = 0;
+    txBuf.writePoint = 0;
+    txBuf.readPoint = 0;
+    SPDR = 0xff;
+    return;
+  }
+
   // 送信処理が終わるまではその他の処理はしない
   if(txBuf.readPoint != txBuf.writePoint){
     return;
@@ -46,7 +56,7 @@ void cl_TURIPserverSPI::update(){
       txBuf.writePoint = 0;
       txBuf.readPoint = 0;
       // NACK送信
-      txBuf.buffer[txBuf.writePoint++] = 0xA0;
+      txBuf.buffer[txBuf.writePoint++] = 0x40;
       interrupts();
     }else if(rxBuf.buffer[0]&0x80){
       //Writeモード(client->server)の処理
@@ -61,8 +71,33 @@ void cl_TURIPserverSPI::update(){
         rxBuf.readPoint = 0;
         txBuf.writePoint = 0;
         txBuf.readPoint = 0;
+        // Set "Data type" bits.
+        uint8_t typeFlags = 0;
+        switch(port->getType()){
+          case BOOL:
+            typeFlags = 0x1;
+            break;
+          case INT8:
+            typeFlags = 0x2;
+            break;
+          case INT16:
+            typeFlags = 0x3;
+            break;
+          case INT32:
+            typeFlags = 0x4;
+            break;
+          case INT64:
+            typeFlags = 0x5;
+            break;
+          case FLOAT:
+            typeFlags = 0xc;
+            break;
+          case DOUBLE:
+            typeFlags = 0xd;
+            break;
+        }
         // ACK送信
-        txBuf.buffer[txBuf.writePoint++] = 0xC0;
+        txBuf.buffer[txBuf.writePoint++] = 0x00 | typeFlags;
         interrupts();
       }
     }else{
@@ -74,8 +109,33 @@ void cl_TURIPserverSPI::update(){
       rxBuf.readPoint = 0;
       txBuf.writePoint = 0;
       txBuf.readPoint = 0;
+      // Set "Data type" bits.
+      uint8_t typeFlags = 0;
+      switch(port->getType()){
+        case BOOL:
+          typeFlags = 0x1;
+          break;
+        case INT8:
+          typeFlags = 0x2;
+          break;
+        case INT16:
+          typeFlags = 0x3;
+          break;
+        case INT32:
+          typeFlags = 0x4;
+          break;
+        case INT64:
+          typeFlags = 0x5;
+          break;
+        case FLOAT:
+          typeFlags = 0xc;
+          break;
+        case DOUBLE:
+          typeFlags = 0xd;
+          break;
+      }
       // 転送
-      txBuf.buffer[txBuf.writePoint++] = 0xC0;
+      txBuf.buffer[txBuf.writePoint++] = 0x00 | typeFlags;
       int sizeofData = sizeofTuripDataType(port->getType());
       memcpy(&txBuf.buffer[txBuf.writePoint], port->readMemory(), sizeofData);
       txBuf.writePoint += sizeofData;

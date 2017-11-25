@@ -12,6 +12,8 @@ public:
   virtual int scan(uint64_t* idList[]);
   virtual int write(uint64_t id, int port, TURIPdataType type, void* data);
   virtual int read(uint64_t id, int port, TURIPdataType type, void* data);
+  virtual TURIPdataType getType(uint64_t id, int port);
+  virtual int isExist(uint64_t id);
 protected:
   uint64_t idList[16];
   int numofDevices;
@@ -23,6 +25,7 @@ public:
   int attach(uint64_t id);
   int read(int port, TURIPdataType type, void* data);
   int write(int port, TURIPdataType type, void* data);
+  TURIPdataType getType(int port);
 private:
   uint64_t id;
   TURIPclientPeripheral* peripheral;

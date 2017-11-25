@@ -9,7 +9,13 @@ TURIPport::TURIPport(int portNum, TURIPdataType type)
   this->type = type;
 
   // データ保管領域の確保
-  this->data = new uint8_t[sizeofTuripDataType(this->type)];
+  // if(type == STRING){
+  //   this->data = new uint8_t[1];
+  //   this->data[0] = '\0';
+  //   this->stringLength = 0;
+  // }else{
+  //   this->data = new uint8_t[sizeofTuripDataType(this->type)];
+  // }
 
   // パーミッションのデフォルトをREADWRITEとする
   this->permission = READWRITE;
@@ -31,6 +37,15 @@ void* TURIPport::readMemory(){
   return this->data;
 }
 
+// char* TURIPport::readStrMemory(){
+//   if(this->fn_readProcess != NULL){
+//     if(this->fn_readProcess()){
+//       return NULL;
+//     }
+//   }
+//   return this->data;
+// }
+
 int TURIPport::writeMemory(void* data){
   if(this->permission == READWRITE){
     memcpy(this->data, data, sizeofTuripDataType(this->type));
@@ -43,6 +58,19 @@ int TURIPport::writeMemory(void* data){
     return -1;
   }
 }
+
+// int TURIPport::writeStrMemory(const char* data){
+//   if(this->permission == READWRITE && this->stringLength >= strlen(data)){
+//     strcpy(this->data, data);
+//     if(this->fn_writeProcess == NULL){
+//       return 0;
+//     } else{
+//       return this->fn_writeProcess();
+//     }
+//   }else{
+//     return -1;
+//   }
+// }
 
 void TURIPport::setReadProcess(int (*function)()){
   this->fn_readProcess = function;
@@ -61,6 +89,13 @@ void TURIPport::setType(TURIPdataType newType){
   this->type = newType;
   this->data = new uint8_t[sizeofTuripDataType(newType)];
 }
+
+// void TURIPport::setStrlen(unsigned int length){
+//   delete[] this->data;
+//   this->stringLength = length;
+//   this->data = new uint8_t[length + 1];
+//   this->data[length] = '\0';
+// }
 
 
 
