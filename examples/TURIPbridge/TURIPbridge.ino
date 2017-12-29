@@ -1,4 +1,6 @@
-#include <TURIPclient>
+#include <SPI.h>
+#include <TURIPcommon.h>
+#include <TURIPclient.h>
 #include <TURIPclientSPI.h>
 #include <TURIPserver.h>
 #include <TURIPshell.h>

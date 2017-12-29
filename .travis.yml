@@ -5,7 +5,9 @@ before_install:
 install:
   - mv TURIP* "$HOME/Arduino/libraries"
 script:
-  - build_main_platforms
+  - build_platform uno
+  - build_platform leonardo
+  - build_platform esp8266
 notifications:
   email:
     on_success: change

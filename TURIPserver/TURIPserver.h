@@ -61,7 +61,7 @@ public:
   }
 
   char* read(){
-    return this->data;
+    return (char*)(this->data);
   }
 
   /*
@@ -77,7 +77,7 @@ public:
 
   void write(const char* data){
     if(this->stringLength >= strlen(data)){
-      strcpy(this->data, data);
+      strcpy((char*)(this->data), data);
     }
   }
 

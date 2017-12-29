@@ -1,4 +1,5 @@
 #include "TURIPshell.h"
+#include <Arduino.h>
 
 String TURIPshell(String line){
   char strBuf[64];
@@ -265,7 +266,7 @@ String strReadFromPort(const char* port){
   return response;
 }
 
-String strWriteToPort(const char* port, const char* data){
+String strWriteToPort(const char* port, char* data){
   union {
     int8_t i8;
     int16_t i16;
