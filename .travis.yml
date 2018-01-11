@@ -1,0 +1,14 @@
+language: c
+sudo: false
+before_install:
+  - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
+install:
+  - mv TURIP* "$HOME/Arduino/libraries"
+script:
+  - build_platform uno
+  - build_platform leonardo
+  - build_platform esp8266
+notifications:
+  email:
+    on_success: change
+    on_failure: change

@@ -1,4 +1,5 @@
 # TURIPlibrariesForArduino
+[![Build Status](https://travis-ci.org/turippj/TURIPlibrariesForArduino.svg?branch=master)](https://travis-ci.org/turippj/TURIPlibrariesForArduino)
 
 TURIPをArduino上で利用するためのライブラリです。
 
