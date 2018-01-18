@@ -1,11 +1,10 @@
 #ifndef TURIP_PORT_H
 #define TURIP_PORT_H
 
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
 #include "turipDefines.h"
-
-typedef enum en_turipPortPermission{
-  READONLY, READWRITE
-} turipPortPermission;
 
 /*
 class TURIPport
@@ -15,91 +14,43 @@ TURIPのポートの管理を行う。
 */
 class TURIPport{
 public:
-  TURIPport(int portNum, boolean data);
-  TURIPport(int portNum, int8_t data);
-  TURIPport(int portNum, int16_t data);
-  TURIPport(int portNum, int32_t data);
-  TURIPport(int portNum, int64_t data);
-  TURIPport(int portNum, uint8_t data);
-  TURIPport(int portNum, uint16_t data);
-  TURIPport(int portNum, uint32_t data);
-  TURIPport(int portNum, uint64_t data);
-  TURIPport(int portNum, float* data);
-  TURIPport(int portNum, double* data);
-  TURIPport(int portNum, char* data);
+  TURIPport(int portNum);
 
-  init(int portNum){
-    // ポート番号の設定
-    this->portNumber = portNum;
+  int8_t TURIPport::readInt8();
+  int16_t TURIPport::readInt16();
+  int32_t TURIPport::readInt32();
+  int64_t TURIPport::readInt64();
+  uint8_t TURIPport::readInt8();
+  uint16_t TURIPport::readUint16();
+  uint32_t TURIPport::readUint32();
+  uint64_t TURIPport::readUint64();
+  float TURIPport::readFloat();
+  double TURIPport::readDouble();
+  int TURIPport::readString(char* data, unsigned int maxLength);
 
-    // パーミッションのデフォルトをREADWRITEとする
-    this->permission = READWRITE;
+  void TURIPport::writeInt8(int8_t data);
+  void TURIPport::writeInt16(int16_t data);
+  void TURIPport::writeInt32(int32_t data);
+  void TURIPport::writeInt64(int64_t data);
+  void TURIPport::writeUint8(uint8_t data);
+  void TURIPport::writeUint16(uint16_t data);
+  void TURIPport::writeUint32(uint32_t data);
+  void TURIPport::writeUint64(uint64_t data);
+  void TURIPport::writeFloat(float data);
+  void TURIPport::writeDouble(double data);
+  void TURIPport::writeString(char* data);
 
-    // トリガ関数は無効化する
-    this->fn_readProcess = NULL;
-    this->fn_writeProcess = NULL;
+  int TURIPport::receive(int type, uint8_t* dataPtr, unsigned int nbytes);
+  int TURIPport::transmit(uint8_t* dataPtr);
 
-    registerTuripPort(this);
-  }
-
-  void TURIPport::read(int8_t* data);
-  void TURIPport::read(int16_t* data);
-  void TURIPport::read(int32_t* data);
-  void TURIPport::read(int64_t* data);
-  void TURIPport::read(uint8_t* data);
-  void TURIPport::read(uint16_t* data);
-  void TURIPport::read(uint32_t* data);
-  void TURIPport::read(uint64_t* data);
-  void TURIPport::read(float* data);
-  void TURIPport::read(double* data);
-  void TURIPport::read(char* data);
-
-  void TURIPport::write(int8_t data);
-  void TURIPport::write(int16_t data);
-  void TURIPport::write(int32_t data);
-  void TURIPport::write(int64_t data);
-  void TURIPport::write(uint8_t data);
-  void TURIPport::write(uint16_t data);
-  void TURIPport::write(uint32_t data);
-  void TURIPport::write(uint64_t data);
-  void TURIPport::write(float data);
-  void TURIPport::write(double data);
-  void TURIPport::write(char* data);
-
-  void TURIPport::onGetReq(int8_t* data);
-  void TURIPport::onGetReq(int16_t* data);
-  void TURIPport::onGetReq(int32_t* data);
-  void TURIPport::onGetReq(int64_t* data);
-  void TURIPport::onGetReq(uint8_t* data);
-  void TURIPport::onGetReq(uint16_t* data);
-  void TURIPport::onGetReq(uint32_t* data);
-  void TURIPport::onGetReq(uint64_t* data);
-  void TURIPport::onGetReq(float* data);
-  void TURIPport::onGetReq(double* data);
-  void TURIPport::onGetReq(char* data);
-
-  void TURIPport::onPostReq(int8_t data);
-  void TURIPport::onPostReq(int16_t data);
-  void TURIPport::onPostReq(int32_t data);
-  void TURIPport::onPostReq(int64_t data);
-  void TURIPport::onPostReq(uint8_t data);
-  void TURIPport::onPostReq(uint16_t data);
-  void TURIPport::onPostReq(uint32_t data);
-  void TURIPport::onPostReq(uint64_t data);
-  void TURIPport::onPostReq(float data);
-  void TURIPport::onPostReq(double data);
-  void TURIPport::onPostReq(char* data);
-
-  int portNumber;
+  uint8_t portNumber;
   int type;
   turipPortPermission permission;
-  void (*preReadFunction)(void);
-  void (*postReadFunction)(void);
-  void (*preWriteFunction)(void);
-  void (*postWriteFunction)(void);
-
-private:
   void* volatile cache;
+  void (*preReceiveFunc)(void);
+  void (*postReceiveFunc)(void);
+  void (*preTransmitFunc)(void);
+  void (*postTransmitFunc)(void);
 };
 
 #endif

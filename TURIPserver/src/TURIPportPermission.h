@@ -1,6 +1,0 @@
-#ifndef TURIP_PORTPERMISSION_H
-#define TURIP_PORTPERMISSION_H
-
-
-
-#endif
