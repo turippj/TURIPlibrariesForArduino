@@ -6,6 +6,8 @@
 #include <string.h>
 #include "turipDefines.h"
 
+#define MAX_STRING_LENGTH 256
+
 /*
 class TURIPport
 
@@ -14,39 +16,40 @@ TURIPのポートの管理を行う。
 */
 class TURIPport{
 public:
-  TURIPport(int portNum);
+  TURIPport(uint8_t portNum);
 
-  int8_t TURIPport::readInt8();
-  int16_t TURIPport::readInt16();
-  int32_t TURIPport::readInt32();
-  int64_t TURIPport::readInt64();
-  uint8_t TURIPport::readInt8();
-  uint16_t TURIPport::readUint16();
-  uint32_t TURIPport::readUint32();
-  uint64_t TURIPport::readUint64();
-  float TURIPport::readFloat();
-  double TURIPport::readDouble();
-  int TURIPport::readString(char* data, unsigned int maxLength);
+  int8_t readInt8();
+  int16_t readInt16();
+  int32_t readInt32();
+  int64_t readInt64();
+  uint8_t readUint8();
+  uint16_t readUint16();
+  uint32_t readUint32();
+  uint64_t readUint64();
+  float readFloat();
+  double readDouble();
+  int readString(char* data, unsigned int maxLength);
 
-  void TURIPport::writeInt8(int8_t data);
-  void TURIPport::writeInt16(int16_t data);
-  void TURIPport::writeInt32(int32_t data);
-  void TURIPport::writeInt64(int64_t data);
-  void TURIPport::writeUint8(uint8_t data);
-  void TURIPport::writeUint16(uint16_t data);
-  void TURIPport::writeUint32(uint32_t data);
-  void TURIPport::writeUint64(uint64_t data);
-  void TURIPport::writeFloat(float data);
-  void TURIPport::writeDouble(double data);
-  void TURIPport::writeString(char* data);
+  void writeInt8(int8_t data);
+  void writeInt16(int16_t data);
+  void writeInt32(int32_t data);
+  void writeInt64(int64_t data);
+  void writeUint8(uint8_t data);
+  void writeUint16(uint16_t data);
+  void writeUint32(uint32_t data);
+  void writeUint64(uint64_t data);
+  void writeFloat(float data);
+  void writeDouble(double data);
+  void writeString(char* data);
 
-  int TURIPport::receive(int type, uint8_t* dataPtr, unsigned int nbytes);
-  int TURIPport::transmit(uint8_t* dataPtr);
+  int receive(int type, uint8_t* dataPtr, unsigned int nbytes);
+  int transmit(uint8_t* dataPtr);
 
   uint8_t portNumber;
   int type;
   turipPortPermission permission;
-  void* volatile cache;
+  int cacheSize;
+  uint8_t* volatile cache;
   void (*preReceiveFunc)(void);
   void (*postReceiveFunc)(void);
   void (*preTransmitFunc)(void);

@@ -1,158 +1,272 @@
 #include "TURIPport.h"
 
-int numofTURIPports = 0;
-TURIPport** TURIPports = NULL;
-
-void registerTURIPport(TURIPport* newPort){
-  TURIPport** newTURIPports = new *TURIPport[++numofTURIPports];
-  for(int i = 0; i < numofTURIPports - 1; i++){
-    newTURIPports[i] = TURIPports[i];
-  }
-  newTURIPports[numofTURIPports - 1] = newPort;
-  if(TURIPports != NULL){
-    delete[] TURIPports;
-  }
-}
-
-TURIPport* searchTURIPport(int portNum){
-  for(int i = 0; i < numofTURIPports; i++){
-    if(TURIPports[i]->portNumber == portNum){
-      return TURIPports[i];
-    }
-  }
-  return NULL;
-}
-
-TURIPport::TURIPport(int portNum, boolean data)
-{
-  init(portNum);
-  this->type = TURIP_TYPE_BOOL;
-}
-
-TURIPport::TURIPport(int portNum, int8_t data)
-{
-  init(portNum);
-  this->type = TURIP_TYPE_INT8;
-}
-
-TURIPport::TURIPport(int portNum, int16_t data)
-{
-  init(portNum);
-  this->type = TURIP_TYPE_INT16;
-}
-
-TURIPport::TURIPport(int portNum, int32_t data)
-{
-  init(portNum);
-  this->type = TURIP_TYPE_INT32;
-}
-
-TURIPport::TURIPport(int portNum, int64_t data)
-{
-  init(portNum);
-  this->type = TURIP_TYPE_INT64;
-}
-
-TURIPport::TURIPport(int portNum, uint8_t data)
-{
-  init(portNum);
-  this->type = TURIP_TYPE_UINT8;
-}
-
-TURIPport::TURIPport(int portNum, uint16_t data)
-{
-  init(portNum);
-  this->type = TURIP_TYPE_UINT16;
-}
-
-TURIPport::TURIPport(int portNum, uint32_t data)
-{
-  init(portNum);
-  this->type = TURIP_TYPE_UINT32;
-}
-
-TURIPport::TURIPport(int portNum, uint64_t data)
-{
-  init(portNum);
-  this->type = TURIP_TYPE_UINT64;
-}
-
-TURIPport::TURIPport(int portNum, float* data)
-{
-  init(portNum);
-  this->type = TURIP_TYPE_FLOAT;
-}
-
-TURIPport::TURIPport(int portNum, double* data)
-{
-  init(portNum);
-  this->type = TURIP_TYPE_DOUBLE;
-}
-
-TURIPport::TURIPport(int portNum, char* data)
-{
-  init(portNum);
-  this->type = TURIP_TYPE_STRING;
-}
-
-void TURIPport::init(int portNum){
+TURIPport::TURIPport(uint8_t portNum){
   // ポート番号の設定
   this->portNumber = portNum;
-
   // パーミッションのデフォルトをREADWRITEとする
-  this->permission = READWRITE;
+  this->permission = TURIP_PERMISSION_RW;
 
   // トリガ関数は無効化する
-  this->fn_readProcess = NULL;
-  this->fn_writeProcess = NULL;
+  this->preReceiveFunc = NULL;
+  this->postReceiveFunc = NULL;
+  this->preTransmitFunc = NULL;
+  this->postTransmitFunc = NULL;
 
-  registerTURIPport(this);
+  cache = NULL;
+  cacheSize = 0;
+  type = TURIP_TYPE_UNKNOWN;
 }
 
-void TURIPport::read(int8_t* data);
-void TURIPport::read(int16_t* data);
-void TURIPport::read(int32_t* data);
-void TURIPport::read(int64_t* data);
-void TURIPport::read(uint8_t* data);
-void TURIPport::read(uint16_t* data);
-void TURIPport::read(uint32_t* data);
-void TURIPport::read(uint64_t* data);
-void TURIPport::read(float* data);
-void TURIPport::read(double* data);
-void TURIPport::read(char* data);
+int8_t TURIPport::readInt8(){
+  if(type == TURIP_TYPE_INT8) return (int8_t)(*((&int8_t)cache));
+  return 0;
+}
 
-void TURIPport::write(const int8_t data);
-void TURIPport::write(const int16_t data);
-void TURIPport::write(const int32_t data);
-void TURIPport::write(const int64_t data);
-void TURIPport::write(const uint8_t data);
-void TURIPport::write(const uint16_t data);
-void TURIPport::write(const uint32_t data);
-void TURIPport::write(const uint64_t data);
-void TURIPport::write(const float data);
-void TURIPport::write(const double data);
-void TURIPport::write(const char* data);
+int16_t TURIPport::readInt16(){
+  if(type == TURIP_TYPE_INT16) return (int16_t)(*((&int16_t)cache));
+  return 0;
+}
 
-void TURIPport::onGetReq(int8_t* data);
-void TURIPport::onGetReq(int16_t* data);
-void TURIPport::onGetReq(int32_t* data);
-void TURIPport::onGetReq(int64_t* data);
-void TURIPport::onGetReq(uint8_t* data);
-void TURIPport::onGetReq(uint16_t* data);
-void TURIPport::onGetReq(uint32_t* data);
-void TURIPport::onGetReq(uint64_t* data);
-void TURIPport::onGetReq(float* data);
-void TURIPport::onGetReq(double* data);
-void TURIPport::onGetReq(char* data);
+int32_t TURIPport::readInt32(){
+  if(type == TURIP_TYPE_INT32) return (int32_t)(*((&int32_t)cache));
+  return 0;
+}
 
-void TURIPport::onPostReq(const int8_t data);
-void TURIPport::onPostReq(const int16_t data);
-void TURIPport::onPostReq(const int32_t data);
-void TURIPport::onPostReq(const int64_t data);
-void TURIPport::onPostReq(const uint8_t data);
-void TURIPport::onPostReq(const uint16_t data);
-void TURIPport::onPostReq(const uint32_t data);
-void TURIPport::onPostReq(const uint64_t data);
-void TURIPport::onPostReq(const float data);
-void TURIPport::onPostReq(const double data);
-void TURIPport::onPostReq(const char* data);
+int64_t TURIPport::readInt64(){
+  if(type == TURIP_TYPE_INT64) return (int64_t)(*((&int64_t)cache));
+  return 0;
+}
+
+uint8_t TURIPport::readUint8(){
+  if(type == TURIP_TYPE_UINT8) return (uint8_t)(*((&uint8_t)cache));
+  return 0;
+}
+
+uint16_t TURIPport::readUint16(){
+  if(type == TURIP_TYPE_UINT16) return (uint16_t)(*((&uint16_t)cache));
+  return 0;
+}
+
+uint32_t TURIPport::readUint32(){
+  if(type == TURIP_TYPE_UINT32) return (uint32_t)(*((&uint32_t)cache));
+  return 0;
+}
+
+uint64_t TURIPport::readUint64(){
+  if(type == TURIP_TYPE_UINT64) return (uint64_t)(*((&uint64_t)cache));
+  return 0;
+}
+
+float TURIPport::readFloat(){
+  if(type == TURIP_TYPE_FLOAT) return (float)(*((&float)cache));
+  return 0;
+}
+
+double TURIPport::readDouble(){
+  if(type == TURIP_TYPE_DOUBLE) return (double)(*((&double)cache));
+  return 0;
+}
+
+int TURIPport::readString(char* data, unsigned int maxLength){
+  if(type == TURIP_TYPE_STRING){
+    int cacheStrLen = strlen((char*)cache) + 1;
+    if(cacheStrLen > maxLength){
+      memcpy(data, cache, maxLength);
+    }else{
+      memcpy(data, cache, cacheStrLen);
+    }
+    return cacheStrLen;
+  }
+  return -1;
+}
+
+void TURIPport::writeInt8(int8_t data){
+  if(permission == TURIP_PERMISSION_RO){
+    return;
+  }
+  if(type != TURIP_TYPE_INT8){
+    if(cache != NULL){
+      delete[] cache;
+    }
+    cacheSize = sizeof(int8_t);
+    cache = new uint8_t[cacheSize];
+    type = TURIP_TYPE_INT8;
+  }
+  memcpy(cache, &data, sizeof(int8_t));
+}
+
+void TURIPport::writeInt16(int16_t data){
+  if(permission == TURIP_PERMISSION_RO){
+    return;
+  }
+  if(type != TURIP_TYPE_INT16){
+    if(cache != NULL){
+      delete[] cache;
+    }
+    cacheSize = sizeof(int16_t);
+    cache = new uint8_t[cacheSize];
+    type = TURIP_TYPE_INT16;
+  }
+  memcpy(cache, &data, sizeof(int16_t));
+}
+
+void TURIPport::writeInt32(int32_t data){
+  if(permission == TURIP_PERMISSION_RO){
+    return;
+  }
+  if(type != TURIP_TYPE_INT32){
+    if(cache != NULL){
+      delete[] cache;
+    }
+    cacheSize = sizeof(int32_t);
+    cache = new uint8_t[cacheSize];
+    type = TURIP_TYPE_INT32;
+  }
+  memcpy(cache, &data, sizeof(int32_t));
+}
+
+void TURIPport::writeInt64(int64_t data){
+  if(permission == TURIP_PERMISSION_RO){
+    return;
+  }
+  if(type != TURIP_TYPE_INT64){
+    if(cache != NULL){
+      delete[] cache;
+    }
+    cacheSize = sizeof(int64_t);
+    cache = new uint8_t[cacheSize];
+    type = TURIP_TYPE_INT64;
+  }
+  memcpy(cache, &data, sizeof(int64_t));
+}
+
+void TURIPport::writeUint8(uint8_t data){
+  if(permission == TURIP_PERMISSION_RO){
+    return;
+  }
+  if(type != TURIP_TYPE_UINT8){
+    if(cache != NULL){
+      delete[] cache;
+    }
+    cacheSize = sizeof(uint8_t);
+    cache = new uint8_t[cacheSize];
+    type = TURIP_TYPE_UINT8;
+  }
+  memcpy(cache, &data, sizeof(uint8_t));
+}
+
+void TURIPport::writeUint16(uint16_t data){
+  if(permission == TURIP_PERMISSION_RO){
+    return;
+  }
+  if(type != TURIP_TYPE_UINT16){
+    if(cache != NULL){
+      delete[] cache;
+    }
+    cacheSize = sizeof(uint16_t);
+    cache = new uint8_t[cacheSize];
+    type = TURIP_TYPE_UINT16;
+  }
+  memcpy(cache, &data, sizeof(uint16_t));
+}
+
+void TURIPport::writeUint32(uint32_t data){
+  if(permission == TURIP_PERMISSION_RO){
+    return;
+  }
+  if(type != TURIP_TYPE_UINT32){
+    if(cache != NULL){
+      delete[] cache;
+    }
+    cacheSize = sizeof(uint32_t);
+    cache = new uint8_t[cacheSize];
+    type = TURIP_TYPE_UINT32;
+  }
+  memcpy(cache, &data, sizeof(uint32_t));
+}
+
+void TURIPport::writeUint64(uint64_t data){
+  if(permission == TURIP_PERMISSION_RO){
+    return;
+  }
+  if(type != TURIP_TYPE_UINT64){
+    if(cache != NULL){
+      delete[] cache;
+    }
+    cacheSize = sizeof(uint64_t);
+    cache = new uint8_t[cacheSize];
+    type = TURIP_TYPE_UINT64;
+  }
+  memcpy(cache, &data, sizeof(uint64_t));
+}
+
+void TURIPport::writeFloat(float data){
+  if(permission == TURIP_PERMISSION_RO){
+    return;
+  }
+  if(type != TURIP_TYPE_FLOAT){
+    if(cache != NULL){
+      delete[] cache;
+    }
+    cacheSize = sizeof(float);
+    cache = new uint8_t[cacheSize];
+    type = TURIP_TYPE_FLOAT;
+  }
+  memcpy(cache, &data, sizeof(float));
+}
+
+void TURIPport::writeDouble(double data){
+  if(permission == TURIP_PERMISSION_RO){
+    return;
+  }
+  if(type != TURIP_TYPE_DOUBLE){
+    if(cache != NULL){
+      delete[] cache;
+    }
+    cacheSize = sizeof(double);
+    cache = new uint8_t[cacheSize];
+    type = TURIP_TYPE_DOUBLE;
+  }
+  memcpy(cache, &data, sizeof(double));
+}
+
+void TURIPport::writeString(char* data){
+  if(permission == TURIP_PERMISSION_RO){
+    return;
+  }
+  if(cache != NULL){
+    delete[] cache;
+  }
+  cacheSize = strlen(data + 1);
+  cache = new uint8_t[cacheSize];
+  type = TURIP_TYPE_STRING;
+  strcpy(cache, data);
+}
+
+int TURIPport::receive(uint8_t* data){
+  if(preReceiveFunc != NULL) preReceiveFunc();
+  if(type == TURIP_TYPE_STRING){
+    int dataSize = strlen(dataPtr) + 1;
+    if(dataSize > cacheSize){
+      if(cache != NULL){
+        delete[] cache;
+      }
+      cacheSize = dataSize;
+      cache = new uint8_t[cacheSize];
+    }
+    strcpy(cache, (char*)data);
+  }else{
+    memcpy(cache, data, cacheSize);
+  }
+  if(postReceiveFunc != NULL) postReceiveFunc();
+}
+
+int TURIPport::transmit(uint8_t* data, int maxLength){
+  if(preTransmitFunc != NULL) preReceiveFunc();
+  if(cacheSize > maxLength){
+    memcpy(data, cache, maxLength);
+  }else{
+    memcpy(data, cache, cacheSize);
+  }
+  if(postTransmitFunc != NULL) postTransmitFunc();
+}
