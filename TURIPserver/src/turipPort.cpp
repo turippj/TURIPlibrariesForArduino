@@ -262,7 +262,7 @@ int TURIPport::receive(uint8_t* data){
 }
 
 int TURIPport::transmit(uint8_t* data, int maxLength){
-  if(preTransmitFunc != NULL) preReceiveFunc();
+  if(preTransmitFunc != NULL) preTransmitFunc();
   if(cacheSize > maxLength){
     memcpy(data, cache, maxLength);
   }else{

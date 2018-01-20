@@ -28,7 +28,7 @@ public:
   uint64_t readUint64();
   float readFloat();
   double readDouble();
-  int readString(char* data, unsigned int maxLength);
+  String readString();
 
   void writeInt8(int8_t data);
   void writeInt16(int16_t data);
@@ -40,10 +40,10 @@ public:
   void writeUint64(uint64_t data);
   void writeFloat(float data);
   void writeDouble(double data);
-  void writeString(char* data);
+  void writeString(String data);
 
-  int receive(int type, uint8_t* dataPtr, unsigned int nbytes);
-  int transmit(uint8_t* dataPtr);
+  int receive(uint8_t* data);
+  int transmit(uint8_t* data, int maxLength);
 
   uint8_t portNumber;
   int type;
