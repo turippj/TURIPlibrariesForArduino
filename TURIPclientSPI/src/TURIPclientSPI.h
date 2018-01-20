@@ -12,12 +12,11 @@ public:
   cl_TURIPclientSPI();
   void begin();
   void addPin(int ssPin);
-  virtual int scan(uint64_t* idList[]);
-  virtual int write(uint64_t id, int port, TURIPdataType type, void* data);
-  virtual int read(uint64_t id, int port, TURIPdataType type, void* data);
-  virtual TURIPdataType getType(uint64_t id, int port);
-  virtual int isExist(uint64_t id);
-  int readByUseSS(int ss, int port, TURIPdataType type, void* data);
+  int readByUseSS(int ss, uint8_t port, TURIPdataType type, void* data);
+  virtual void scan();
+  virtual int write(uint64_t id, uint8_t port, TURIPdataType type, void* data);
+  virtual int read(uint64_t id, uint8_t port, TURIPdataType type, void* data);
+  virtual TURIPdataType getType(uint64_t id, uint8_t port);
 
 private:
   int ssPinList[16];
