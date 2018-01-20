@@ -7,319 +7,294 @@ String TURIPshell(String line){
 }
 
 String TURIPshell(const char* line){
-  int numofSegment = 0;
-  char* method = NULL;
-  char* id = NULL;
-  char* port = NULL;
-  char* type = NULL;
-  char* data = NULL;
-  int numofDev = 0;
-  uint64_t* devId = NULL;
-  String response;
-  char strBuf[64];
-  char strBuf2[32];
-
-  numofSegment = getSegment(line, 0, &method);
-
-  if(!strcmp(method, "get")){  // get method
-    if(isOptionExist(line, "-b") && isOptionExist(line, "-p")){
-      getArgFromOption(line, "-b", &id);
-      getArgFromOption(line, "-p", &port);
-      strReadAcrossBridge(id, port).toCharArray(strBuf2, 32);
-      sprintf(strBuf, "{\"status\":200,\"id\":\"%s\",\"port\":%s,", id, port);
-      response += strBuf;
-      sprintf(strBuf, "\"data\":%s}", strBuf2);
-      response += strBuf;
-    }else if(isOptionExist(line, "-p")){
-      if(port != NULL) delete[] port;
-      getArgFromOption(line, "-p", &port);
-      strReadFromPort(port).toCharArray(strBuf2, 32);
-      sprintf(strBuf, "{\"status\":200,\"port\":%s,", port);
-      response += strBuf;
-      sprintf(strBuf, "\"data\":%s}", strBuf2);
-      response += strBuf;
-    }else{
-      response += "{\"status\":400}";
-    }
-  }else if(!strcmp(method, "post")){  // post method
-    if(isOptionExist(line, "-b") && isOptionExist(line, "-p")){
-      getArgFromOption(line, "-b", &id);
-      getArgFromOption(line, "-p", &port);
-      getSegment(line, numofSegment - 1, &data);
-      strWriteAcrossBridge(id, port, data).toCharArray(strBuf2, 32);
-      sprintf(strBuf, "{\"status\":200,\"id\":\"%s\",\"port\":%s,", id, port);
-      response += strBuf;
-      sprintf(strBuf, "\"data\":%s}", strBuf2);
-      response += strBuf;
-    }else if(isOptionExist(line, "-p")){
-      if(port != NULL) delete[] port;
-      getArgFromOption(line, "-p", &port);
-      if(data != NULL) delete[] data;
-      getSegment(line, numofSegment - 1, &data);
-      strWriteToPort(port, data).toCharArray(strBuf2, 32);
-      sprintf(strBuf, "{\"status\":200,\"port\":%s,", port);
-      response += strBuf;
-      sprintf(strBuf, "\"data\":%s}", strBuf2);
-      response += strBuf;
-    }else{
-      response += "{\"status\":400}";
-    }
-  }else if(!strcmp(method, "bridge")){  // bridge method
-    if(numofSegment == 1){
-      if(devId != NULL) delete[] devId;
-      numofDev = TURIPclient.scan();
-      response += "{\"status\":200,\"id\":[";
-      for (size_t i = 0; i < numofDev; i++) {
-        sprintf(strBuf, "\"%X-%X\"", (uint32_t)(TURIPclient.idList[i] >> 32), (uint32_t)(TURIPclient.idList[i]));
-        response += strBuf;
-        if(i != numofDev - 1){
-          response += ",";
-        }
-      }
-      response += "]}";
-    }else{
-      response += "{\"status\":400}";
-    }
+  turipShellCommand cmd = turipShellCommandParser(line);
+  turipShellResponse response;
+  if(cmd.depth == 1 && cmd.method == TURIP_METHOD_GET){
+    response = turipShellLocalGet(&cmd);
+  }else if(cmd.depth == 1 && cmd.method == TURIP_METHOD_POST){
+    response = turipShellLocalPost(&cmd);
+  }else if(cmd.depth == 2 && cmd.method == TURIP_METHOD_GET){
+    response = turipShellBridgeGet(&cmd);
+  }else if(cmd.depth == 2 && cmd.method == TURIP_METHOD_POST){
+    response = turipShellBridgePost(&cmd);
   }else{
-    response += "{\"status\":400}";
+    response.statusCode = 400;
   }
-
-  if(method != NULL) delete[] method;
-  if(id != NULL) delete[] id;
-  if(port != NULL) delete[] port;
-  if(type != NULL) delete[] type;
-  if(data != NULL) delete[] data;
-  if(devId != NULL) delete[] devId;
-
-  return response;
-}
-
-String strReadAcrossBridge(const char* id, const char* port){
-  String response;
-  uint64_t _id = strToId(id);
-  uint8_t _port = atoi(port);
-  TURIP dev;
-
-  union {
-    int8_t i8;
-    int16_t i16;
-    int32_t i32;
-    int64_t i64;
-    float f;
-    double d;
-  } portBuf;
-  char str[32];
-
-  if(dev.attach(_id) == 0){
-    TURIPdataType _type = dev.getType(_port);
-    switch(_type){
-      case INT8:
-        dev.read(_port, _type, &portBuf.i8);
-        sprintf(str, "%d", portBuf.i8);
-        break;
-      case INT16:
-        dev.read(_port, _type, &portBuf.i16);
-        sprintf(str, "%d", portBuf.i16);
-        break;
-      case INT32:
-        dev.read(_port, _type, &portBuf.i32);
-        sprintf(str, "%d", portBuf.i32);
-        break;
-      case INT64:
-        dev.read(_port, _type, &portBuf.i64);
-        sprintf(str, "%d", portBuf.i64);
-        break;
-      case FLOAT:
-        dev.read(_port, _type, &portBuf.f);
-        // sprintf(str, "%f", portBuf.f);
-        dtostrf(portBuf.f, 8, 4, str);  // Alternative function in Arduino
-        break;
-      case DOUBLE:
-        dev.read(_port, _type, &portBuf.d);
-        dtostrf(portBuf.f, 8, 4, str);
-        break;
-      case BOOL:
-        dev.read(_port, _type, &portBuf.i8);
-        if(portBuf.i8){
-          sprintf(str, "true");
-        }else{
-          sprintf(str, "false");
-        }
-        break;
+  String strResponse;
+  strResponse = "{\"status\":";
+  if(cmd.depth == 0 && cmd.method == TURIP_METHOD_GET){
+    strResponse += "200,\"protocol\":\"TURIP\",\"id\":\"";
+    strResponse += turipIdIntToStr(TURIPserver.myId);
+  }else{
+    strResponse += response.statusCode;
+    if(response.id != 0){
+      strResponse += ".\"id\":";
+      strResponse += response.id;
     }
-    response += str;
-    response.trim();
-  }
-  return response;
-}
-
-String strWriteAcrossBridge(const char* id, const char* port, const char* data){
-  String response;
-  uint64_t _id = strToId(id);
-  uint8_t _port = atoi(port);
-  TURIP dev;
-  union {
-    int8_t i8;
-    int16_t i16;
-    int32_t i32;
-    int64_t i64;
-    float f;
-    double d;
-  } portBuf;
-  char str[32];
-
-  if(dev.attach(_id) == 0){
-    TURIPdataType _type = dev.getType(_port);
-    switch(_type){
-      case INT8:
-        portBuf.i8 = atoi(data);
-        dev.write(_port, _type, &portBuf.i8);
-        break;
-      case INT16:
-        portBuf.i16 = atoi(data);
-        dev.write(_port, _type, &portBuf.i16);
-        break;
-      case INT32:
-        portBuf.i32 = atoi(data);
-        dev.write(_port, _type, &portBuf.i32);
-        break;
-      case INT64:
-        portBuf.i64 = atoi(data);
-        dev.write(_port, _type, &portBuf.i64);
-        break;
-      case FLOAT:
-        portBuf.f = atof(data);
-        dev.write(_port, _type, &portBuf.f);
-        break;
-      case DOUBLE:
-        portBuf.d = atof(data);
-        dev.write(_port, _type, &portBuf.d);
-        break;
-      case BOOL:
-        if(!strcmp(data, "true")){
-          portBuf.i8 = 1;
-        }else{
-          portBuf.i8 = 0;
-        }
-        dev.write(_port, _type, &portBuf.i8);
-        break;
+    if(response.statusCode == 200){
+      strResponse += ".\"port\":";
+      strResponse += response.port;
+      strResponse += ".\"data\":";
+      strResponse += response.data;
     }
   }
-
-  return strReadAcrossBridge(id, port);
+  strResponse += "}";
+  return strResponse;
 }
 
-String strReadFromPort(const char* port){
-  String response;
-  union {
-    int8_t i8;
-    int16_t i16;
-    int32_t i32;
-    int64_t i64;
-    float f;
-    double d;
-  } portBuf;
-  char str[32];
-  TURIPport* selectedPort = TURIPserver.get(atoi(port));
+turipShellResponse turipShellLocalGet(turipShellCommand* cmd){
+  turipShellResponse response;
+  TURIPport* p = TURIPserver.getPort(cmd->port);
+  if(p == NULL){
+    response.statusCode = 404;
+    return response;
+  }
+  uint8_t portData[64];
+  p->transmit(portData, 64);
+  response.id= 0;
+  response.port = cmd->port;
+  response.statusCode = 200;
 
-  if(selectedPort != NULL){
-    switch(selectedPort->getType()){
-      case INT8:
-        memcpy(&portBuf.i8, selectedPort->readMemory(), sizeofTuripDataType(INT8));
-        sprintf(str, "%d", portBuf.i8);
-        break;
-      case INT16:
-        memcpy(&portBuf.i16, selectedPort->readMemory(), sizeofTuripDataType(INT16));
-        sprintf(str, "%d", portBuf.i16);
-        break;
-      case INT32:
-        memcpy(&portBuf.i32, selectedPort->readMemory(), sizeofTuripDataType(INT32));
-        sprintf(str, "%d", portBuf.i32);
-        break;
-      case INT64:
-        memcpy(&portBuf.i64, selectedPort->readMemory(), sizeofTuripDataType(INT64));
-        sprintf(str, "%X", portBuf.i64);
-        break;
-      case FLOAT:
-        memcpy(&portBuf.f, selectedPort->readMemory(), sizeofTuripDataType(FLOAT));
-        // sprintf(str, "%f", portBuf.f);  // Not work in Arduino
-        dtostrf(portBuf.f, 8, 4, str);  // Alternative function in Arduino
-        break;
-      case DOUBLE:
-        memcpy(&portBuf.d, selectedPort->readMemory(), sizeofTuripDataType(DOUBLE));
-        // sprintf(str, "%f", portBuf.d);
-        dtostrf(portBuf.d, 8, 4, str);
-        break;
-      case BOOL:
-        memcpy(&portBuf.i8, selectedPort->readMemory(), sizeofTuripDataType(BOOL));
-        if(portBuf.i8){
-          sprintf(str, "true");
-        }else{
-          sprintf(str, "false");
-        }
-        break;
-    }
-    response += str;
-    response.trim();
+  switch(p->type){
+    case TURIP_TYPE_UNKNOWN:
+      response.statusCode = 500;
+      break;
+    case TURIP_TYPE_BOOL:
+      if(portData[0] == 0){
+        response.data = "false";
+      } else if(portData[0] == 1) {
+        response.data = "true";
+      } else {
+        response.statusCode = 500;
+      }
+      break;
+    case TURIP_TYPE_UINT8:
+      response.data = *((uint8_t*)portData);
+      break;
+    case TURIP_TYPE_INT8:
+      response.data = *((int8_t*)portData);
+      break;
+    case TURIP_TYPE_UINT16:
+      response.data = *((uint16_t*)portData);
+      break;
+    case TURIP_TYPE_INT16:
+      response.data = *((int16_t*)portData);
+      break;
+    case TURIP_TYPE_UINT32:
+      response.data = *((uint32_t*)portData);
+      break;
+    case TURIP_TYPE_INT32:
+      response.data = *((int32_t*)portData);
+      break;
+    case TURIP_TYPE_UINT64:
+      response.data = *((uint64_t*)portData);
+      break;
+    case TURIP_TYPE_INT64:
+      response.data = *((int64_t*)portData);
+      break;
+    case TURIP_TYPE_FLOAT:
+      response.data = *((float*)portData);
+      break;
+    case TURIP_TYPE_DOUBLE:
+      response.data = *((double*)portData);
+      break;
+    case TURIP_TYPE_STRING:
+      response.data = "\"";
+      response.data += (char*)portData;
+      response.data += "\"";
+      break;
+    default:
+      response.statusCode = 500;
   }
   return response;
 }
 
-String strWriteToPort(const char* port, const char* data){
-  union {
-    int8_t i8;
-    int16_t i16;
-    int32_t i32;
-    int64_t i64;
-    float f;
-    double d;
-  } portBuf;
-
-  TURIPport* selectedPort = TURIPserver.get(atoi(port));
-
-  if(selectedPort != NULL){
-    switch(selectedPort->getType()){
-      case INT8:
-        portBuf.i8 = atoi(data);
-        selectedPort->writeMemory(&portBuf.i8);
-        break;
-      case INT16:
-        portBuf.i16 = atoi(data);
-        selectedPort->writeMemory(&portBuf.i16);
-        break;
-      case INT32:
-        portBuf.i32 = atoi(data);
-        selectedPort->writeMemory(&portBuf.i32);
-        break;
-      case INT64:
-        portBuf.i64 = atoi(data);
-        selectedPort->writeMemory(&portBuf.i64);
-        break;
-      case FLOAT:
-        portBuf.f = atof(data);
-        selectedPort->writeMemory(&portBuf.f);
-        break;
-      case DOUBLE:
-        portBuf.d = atof(data);
-        selectedPort->writeMemory(&portBuf.d);
-        break;
-      case STRING:
-        selectedPort->writeMemory(data);
-        break;
-      case BOOL:
-        if(!strcmp(data, "true")){
-          portBuf.i8 = 1;
-        }else{
-          portBuf.i8 = 0;
-        }
-        selectedPort->writeMemory(&portBuf.i8);
-        break;
-    }
+turipShellResponse turipShellLocalPost(turipShellCommand* cmd){
+  turipShellResponse response;
+  TURIPport* p = TURIPserver.getPort(cmd->port);
+  if(p == NULL){
+    response.statusCode = 404;
+    return response;
   }
-  return strReadFromPort(port);
+  response.statusCode = 200;
+  response.id= 0;
+  response.port = cmd->port;
+  response.data = cmd->data;
+  uint8_t portData[64];
+
+  switch(p->type){
+    case TURIP_TYPE_UNKNOWN:
+      response.statusCode = 500;
+      break;
+    case TURIP_TYPE_BOOL:
+      if(!strcmp(cmd.data, "false")){
+        portData[0] = 0;
+      } else if(!strcmp(cmd.data, "true")){
+        portData[0] = 1;
+      } else {
+        response.statusCode = 400;
+        break;
+      }
+      p->receive(portData);
+      break;
+    case TURIP_TYPE_UINT8:
+      (uint8_t)(*(&portData)) = (uint8_t)atoi(cmd->data);
+      p->receive(portData);
+      break;
+    case TURIP_TYPE_INT8:
+      (int8_t)(*(&portData)) = (int8_t)atoi(cmd->data);
+      p->receive(portData);
+      break;
+    case TURIP_TYPE_UINT16:
+      (uint16_t)(*(&portData)) = (uint16_t)atoi(cmd->data);
+      p->receive(portData);
+      break;
+    case TURIP_TYPE_INT16:
+      (int16_t)(*(&portData)) = (int16_t)atoi(cmd->data);
+      p->receive(portData);
+      break;
+    case TURIP_TYPE_UINT32:
+      (uint32_t)(*(&portData)) = (uint32_t)atoi(cmd->data);
+      p->receive(portData);
+      break;
+    case TURIP_TYPE_INT32:
+      (int32_t)(*(&portData)) = (int32_t)atoi(cmd->data);
+      p->receive(portData);
+      break;
+    case TURIP_TYPE_UINT64:
+      (uint64_t)(*(&portData)) = (uint64_t)atoi(cmd->data);
+      p->receive(portData);
+      break;
+    case TURIP_TYPE_INT64:
+      (int64_t)(*(&portData)) = (int64_t)atoi(cmd->data);
+      p->receive(portData);
+      break;
+    case TURIP_TYPE_FLOAT:
+      (float)(*(&portData)) = (float)atof(cmd->data);
+      p->receive(portData);
+      break;
+    case TURIP_TYPE_DOUBLE:
+      (double)(*(&portData)) = (double)atof(cmd->data);
+      p->receive(portData);
+      break;
+    case TURIP_TYPE_STRING:
+      p->receive(cmd->data);
+      break;
+    default:
+      response.statusCode = 500;
+  }
+  return response;
 }
 
-uint64_t strToId(const char* id){
+turipShellResponse turipShellBridgeGet(turipShellCommand* cmd){
+  turipShellResponse response;
+  TURIPdevice dev;
+
+  if(dev.attach(cmd->ids[0]) == 0){
+    response.statusCode = 200;
+    response.id = cmd->ids[0];
+    response.port = cmd->port;
+
+    switch(dev.getType(cmd->port)){
+      case TURIP_TYPE_UINT8:
+        response.data = dev.readUint8(cmd->port);
+        break;
+      case TURIP_TYPE_INT8:
+        response.data = dev.readInt8(cmd->port);
+        break;
+      case TURIP_TYPE_UINT16:
+        response.data = dev.readUint16(cmd->port);
+        break;
+      case TURIP_TYPE_INT16:
+        response.data = dev.readInt16(cmd->port);
+        break;
+      case TURIP_TYPE_UINT32:
+        response.data = dev.readUint32(cmd->port);
+        break;
+      case TURIP_TYPE_INT32:
+        response.data = dev.readInt32(cmd->port);
+        break;
+      case TURIP_TYPE_UINT64:
+        response.data = dev.readUint64(cmd->port);
+        break;
+      case TURIP_TYPE_INT64:
+        response.data = dev.readInt64(cmd->port);
+        break;
+      case TURIP_TYPE_FLOAT:
+        response.data = dev.readFloat(cmd->port);
+        break;
+      case TURIP_TYPE_DOUBLE:
+        response.data = dev.readDouble(cmd->port);
+        break;
+      case TURIP_TYPE_STRING:
+        *obj = "\"";
+        response.data += dev.readString(cmd->port);
+        *obj += "\"";
+        break;
+      default:
+        response.statusCode = 500;
+    }
+  } else {
+    response.statusCode = 404;
+  }
+
+  return response;
+}
+
+turipShellResponse turipShellBridgePost(turipShellCommand* cmd){
+  turipShellResponse response;
+  TURIPdevice dev;
+
+  if(dev.attach(cmd->id) == 0){
+    response.statusCode = 200;
+    response.id = cmd->ids[0];
+    response.port = cmd->port;
+    response.data = cmd->data;
+
+    switch(dev.getType(cmd->port)){
+      case TURIP_TYPE_UINT8:
+        dev.writeUint8(cmd->port, (uint8_t)atoi(cmd->data));
+        break;
+      case TURIP_TYPE_INT8:
+        dev.writeInt8(cmd->port, (int8_t)atoi(cmd->data));
+        break;
+      case TURIP_TYPE_UINT16:
+        dev.writeUint16(cmd->port, (uint16_t)atoi(cmd->data));
+        break;
+      case TURIP_TYPE_INT16:
+        dev.writeInt16(cmd->port, (int16_t)atoi(cmd->data));
+        break;
+      case TURIP_TYPE_UINT32:
+        dev.writeUint32(cmd->port, (uint32_t)atoi(cmd->data));
+        break;
+      case TURIP_TYPE_INT32:
+        dev.writeInt32(cmd->port, (int32_t)atoi(cmd->data));
+        break;
+      case TURIP_TYPE_UINT64:
+        dev.writeUint64(cmd->port, (uint64_t)atoi(cmd->data));
+        break;
+      case TURIP_TYPE_INT64:
+        dev.writeInt64(cmd->port, (int64_t)atoi(cmd->data));
+        break;
+      case TURIP_TYPE_FLOAT:
+        dev.writeFloat(cmd->port, (float)atof(cmd->data));
+        break;
+      case TURIP_TYPE_DOUBLE:
+        dev.writeDouble(cmd->port, (double)atof(cmd->data));
+        break;
+      case TURIP_TYPE_STRING:
+        dev.writeString(cmd->port, cmd->data);
+        break;
+      default:
+        response.statusCode = 500;
+    }
+  } else {
+    response.statusCode = 404;
+  }
+  return response;
+}
+
+uint64_t turipIdStrToInt(const char* id){
   uint64_t _id = 0;
   char fullid[16 + 1];
   for (size_t i = 0; i < 16; i++) {
@@ -374,12 +349,96 @@ uint64_t strToId(const char* id){
   return _id;
 }
 
-TURIPdataType strToType(const char* type){
-  if(!strcmp(type, "int8")) return INT8;
-  if(!strcmp(type, "int16")) return INT16;
-  if(!strcmp(type, "int32")) return INT32;
-  if(!strcmp(type, "int64")) return INT64;
-  if(!strcmp(type, "float")) return FLOAT;
-  if(!strcmp(type, "double")) return DOUBLE;
-  if(!strcmp(type, "bool")) return BOOL;
+String turipIdIntToStr(uint64_t id){
+  uint32_t model = id >> 32;
+  uint32_t serial = (uint32_t)id;
+  char c[18];
+  sprintf(c, "%x-%x", model, serial);
+  String strid = c;
+  return strid;
+}
+
+turipShellCommand turipShellCommandParser(const char* line){
+  turipShellCommand parsed;
+  int numofArgs = 0;
+  char* args[5];
+  int lineLength = strlen(line);
+  char* raw = new char[lineLength + 1];
+  strcpy(raw, line);
+
+  for (size_t i = 0; i < lineLength; i++) {
+    if(raw[i] == '\"'){
+      args[numofArgs] = &raw[i];
+      numofArgs++;
+      for(i++; i < lineLength; i++){
+        if (raw[i] == '\"') break;
+      }
+    }else if(raw[i] == '\''){
+      args[numofArgs] = &raw[i];
+      numofArgs++;
+      for(i++; i < lineLength; i++){
+        if (raw[i] == '\'') break;
+      }
+    }else if(raw[i] != ' '){
+      args[numofArgs] = &raw[i];
+      numofArgs++;
+      for(; i < lineLength; i++){
+        if(raw[i] == ' ') break;
+      }
+    }
+    if (input[i] == ' '){
+      input[i] = '\0';
+    }
+  }
+
+  parsed.method = TURIP_METHOD_UNKOWN;
+  parsed.data = NULL;
+  char* path = NULL;
+
+  if(args[0][0] == '/'){
+    path = args[0];
+    if(numofArgs == 1){
+      parsed.method = TURIP_METHOD_GET;
+    }else if(numofArgs == 2){
+      parsed.method = TURIP_METHOD_POST;
+      parsed.data = args[1];
+    }
+  } else if(strcmp(args[0], "get") || strcmp(args[0], "GET")){
+    if(args[1][0] == '/' && numofArgs == 2){
+      parsed.method = TURIP_METHOD_GET;
+      path = args[1];
+    }
+  } else if(strcmp(args[0], "post") || strcmp(args[0], "POST")){
+    if(args[1][0] == '/' && numofArgs == 3){
+      parsed.method = TURIP_METHOD_POST;
+      parsed.data = args[2];
+      path = args[1];
+    }
+  }
+
+  if(path != NULL){
+    int pathLength = strlen(path);
+    parsed.depth = 0;
+    char* pathSegments[5];
+    for(int i = 0; i < pathLength; i++){
+      if(path[i] != '/'){
+        pathSegments[depth] = &path[i];
+        parsed.depth++;
+        for(; i < pathLength; i++){
+          if(path[i] == '/') break;
+        }
+      }
+      if(path[i] == '/') path[i] = '\0';
+    }
+    if(parsed.depth == 1){
+      parsed.port = (uint8_t)atoi(path[0]);
+    }else if(parsed.depth == 2){
+      parsed.id = turipIdStrToInt(path[0]);
+      parsed.port = (uint8_t)atoi(path[1]);
+    }else{
+      parsed.method = TURIP_METHOD_UNKOWN;
+    }
+  }
+
+  return parsed;
 }
