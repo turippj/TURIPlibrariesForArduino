@@ -46,12 +46,15 @@ public:
   return: 成功:該当するTURIPportオブジェクトのポインタ 失敗:NULLポインタ
   */
 
+  uint64_t myId;
+
 private:
   // 保有しているポートの数
   int numofPorts;
 
   // TURIPportオブジェクトポインタの保管
   TURIPport* portList[MAX_NUMOF_PORTS];
+
 };
 extern cl_TURIPserver TURIPserver;
 

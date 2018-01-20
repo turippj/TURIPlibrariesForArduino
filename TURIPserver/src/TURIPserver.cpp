@@ -12,6 +12,8 @@ void cl_TURIPserver::begin(uint32_t model, uint32_t serial){
   portList[numofPorts++]->writeUint32(model);
   portList[numofPorts] = new TURIPport(TURIP_PORT_SERIAL);
   portList[numofPorts++]->writeUint32(serial);
+
+  myId = ((uint64_t)model << 32) | (uint64_t)serial;
 }
 
 TURIPport* cl_TURIPserver::newPort(uint8_t portNumber){
