@@ -24,7 +24,14 @@
 #define TURIP_PERMISSION_RO 0
 #define TURIP_PERMISSION_RW 1
 
+#define TURIP_METHOD_UNKOWN -1
+#define TURIP_METHOD_GET 0
+#define TURIP_METHOD_POST 1
+
 #define TURIP_OK 0
-#define TURIP_WRONG_PORT_TYPE 1
+#define TURIP_ERR -1
+#define TURIP_WRONG_PORT_TYPE -2
+
+typedef int TURIPdataType;
 
 #endif
