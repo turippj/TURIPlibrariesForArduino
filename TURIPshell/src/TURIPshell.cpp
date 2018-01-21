@@ -220,7 +220,9 @@ turipShellResponse turipShellLocalPost(turipShellCommand* cmd){
       break;
     case TURIP_TYPE_STRING:
       p->receive(cmd->data);
-      response.data = cmd->data;
+      response.data = "\"";
+      response.data += cmd->data;
+      response.data += "\"";
       break;
     default:
       response.statusCode = 500;
@@ -293,40 +295,75 @@ turipShellResponse turipShellBridgePost(turipShellCommand* cmd){
     response.id = cmd->id;
     response.port = cmd->port;
     response.data = cmd->data;
+    union {
+      uint8_t ui8;
+      uint16_t ui16;
+      uint32_t ui32;
+      uint64_t ui64;
+      int8_t i8;
+      int16_t i16;
+      int32_t i32;
+      int64_t i64;
+      float f;
+      double d;
+    } buf;
 
     switch(dev.getType(cmd->port)){
       case TURIP_TYPE_UINT8:
-        dev.writeUint8(cmd->port, (uint8_t)atoi(cmd->data));
+        buf.ui8 = (uint8_t)atoi(cmd->data);
+        dev.writeUint8(cmd->port, buf.ui8);
+        response.data = buf.ui8;
         break;
       case TURIP_TYPE_INT8:
-        dev.writeInt8(cmd->port, (int8_t)atoi(cmd->data));
+        buf.i8 = (int8_t)atoi(cmd->data);
+        dev.writeInt8(cmd->port, buf.i8);
+        response.data = buf.i8;
         break;
       case TURIP_TYPE_UINT16:
-        dev.writeUint16(cmd->port, (uint16_t)atoi(cmd->data));
+        buf.ui16 = (uint16_t)atoi(cmd->data);
+        dev.writeUint16(cmd->port, buf.ui16);
+        response.data = buf.ui16;
         break;
       case TURIP_TYPE_INT16:
-        dev.writeInt16(cmd->port, (int16_t)atoi(cmd->data));
+        buf.i16 = (int16_t)atoi(cmd->data);
+        dev.writeInt16(cmd->port, buf.i16);
+        response.data = buf.i16;
         break;
       case TURIP_TYPE_UINT32:
-        dev.writeUint32(cmd->port, (uint32_t)atoi(cmd->data));
+        buf.ui32 = (uint32_t)atoi(cmd->data);
+        dev.writeUint32(cmd->port, buf.ui32);
+        response.data = buf.ui32;
         break;
       case TURIP_TYPE_INT32:
-        dev.writeInt32(cmd->port, (int32_t)atoi(cmd->data));
+        buf.i32 = (int32_t)atoi(cmd->data);
+        dev.writeInt32(cmd->port, buf.i32);
+        response.data = buf.i32;
         break;
       // case TURIP_TYPE_UINT64:
-      //   dev.writeUint64(cmd->port, (uint64_t)atoi(cmd->data));
+      //   buf.ui64 = (uint64_t)atoi(cmd->data);
+      //   dev.writeUint64(cmd->port, buf.ui64);
+      //   response.data = buf.ui64;
       //   break;
       // case TURIP_TYPE_INT64:
-      //   dev.writeInt64(cmd->port, (int64_t)atoi(cmd->data));
+      //   buf.i64 = (int64_t)atoi(cmd->data);
+      //   dev.writeInt64(cmd->port, buf.i64);
+      //   response.data = buf.i64;
       //   break;
       case TURIP_TYPE_FLOAT:
-        dev.writeFloat(cmd->port, (float)atof(cmd->data));
+        buf.f = (float)atof(cmd->data);
+        dev.writeFloat(cmd->port, buf.f);
+        response.data = buf.f;
         break;
       case TURIP_TYPE_DOUBLE:
-        dev.writeDouble(cmd->port, (double)atof(cmd->data));
+        buf.d = (double)atof(cmd->data);
+        dev.writeDouble(cmd->port, buf.d);
+        response.data = buf.d;
         break;
       case TURIP_TYPE_STRING:
         dev.writeString(cmd->port, cmd->data);
+        response.data = "\"";
+        response.data += cmd->data;
+        response.data += "\"";
         break;
       default:
         response.statusCode = 500;
