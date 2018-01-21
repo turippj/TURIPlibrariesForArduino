@@ -1,8 +1,10 @@
 #include <TURIPclient.h>
 #include <TURIPclientSPI.h>
 
+TURIPdevice gpioModule;
+
 void setup(){
-  Serial.begin(9600);]
+  Serial.begin(9600);
 
   TURIPclientSPI.addPin(15);
   TURIPclientSPI.addPin(2);
@@ -11,8 +13,7 @@ void setup(){
   TURIPclientSPI.begin();
 
   TURIPclient.scan();
-
-  TURIPdevice gpioModule;
+  
   if(gpioModule.attach(0x284f, 0x0) == TURIP_ERR){
     Serial.println("Not found.");
     while(1);
