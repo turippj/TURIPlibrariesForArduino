@@ -220,6 +220,7 @@ turipShellResponse turipShellLocalPost(turipShellCommand* cmd){
       break;
     case TURIP_TYPE_STRING:
       p->receive(cmd->data);
+      response.data = cmd->data;
       break;
     default:
       response.statusCode = 500;
