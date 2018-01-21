@@ -420,12 +420,12 @@ turipShellCommand turipShellCommandParser(const char* line){
       parsed.method = TURIP_METHOD_POST;
       parsed.data = args[1];
     }
-  } else if(strcmp(args[0], "get") || strcmp(args[0], "GET")){
+  } else if(!strcmp(args[0], "get") || !strcmp(args[0], "GET")){
     if(args[1][0] == '/' && numofArgs == 2){
       parsed.method = TURIP_METHOD_GET;
       path = args[1];
     }
-  } else if(strcmp(args[0], "post") || strcmp(args[0], "POST")){
+  } else if(!strcmp(args[0], "post") || !strcmp(args[0], "POST")){
     if(args[1][0] == '/' && numofArgs == 3){
       parsed.method = TURIP_METHOD_POST;
       parsed.data = args[2];
