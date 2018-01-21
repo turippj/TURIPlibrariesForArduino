@@ -31,7 +31,12 @@ void setup(){
   analogWrite(PIN_AO1, 0);
   analogWrite(PIN_AO2, 0);
 
-  aIn1.postReceiveFunc = setValues;
+  aIn1.preTransmitFunc = setValues;
+  aIn2.preTransmitFunc = setValues;
+  aOut1.postReceiveFunc = setValues;
+  aOut2.postReceiveFunc = setValues;
+
+  TURIPserver.begin(TURIP_MODEL, TURIP_SERIAL);
 }
 
 void loop(){
