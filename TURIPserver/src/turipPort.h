@@ -47,7 +47,7 @@ public:
 
   uint8_t portNumber;
   int type;
-  turipPortPermission permission;
+  int permission;
   int cacheSize;
   uint8_t* volatile cache;
   void (*preReceiveFunc)(void);
