@@ -12,6 +12,7 @@ String TURIPshell(String line){
 String TURIPshell(const char* line){
   turipShellCommand cmd = turipShellCommandParser(line);
   turipShellResponse response;
+  response.id = 0;
   if(cmd.depth == 1 && cmd.method == TURIP_METHOD_GET){
     response = turipShellLocalGet(&cmd);
   }else if(cmd.depth == 1 && cmd.method == TURIP_METHOD_POST){
@@ -26,13 +27,15 @@ String TURIPshell(const char* line){
   String strResponse;
   strResponse = "{\"status\":";
   if(cmd.depth == 0 && cmd.method == TURIP_METHOD_GET){
-    strResponse += "200,\"protocol\":\"TURIP\",\"id\":\"";
+    strResponse += "200,\"protocol\":\"TURIP\",\"id\":\"\"";
     strResponse += turipIdIntToStr(TURIPserver.myId);
+    strResponse += "\"";
   }else{
     strResponse += response.statusCode;
     if(response.id != 0){
-      strResponse += ".\"id\":";
+      strResponse += ".\"id\":\"";
       strResponse += turipIdIntToStr(response.id);
+      strResponse += "\"";
     }
     if(response.statusCode == 200){
       strResponse += ".\"port\":";
@@ -47,6 +50,9 @@ String TURIPshell(const char* line){
 
 turipShellResponse turipShellLocalGet(turipShellCommand* cmd){
   turipShellResponse response;
+  response.id = TURIPserver.myId;
+  response.port = cmd->port;
+  response.statusCode = 200;
   TURIPport* p = TURIPserver.getPort(cmd->port);
   if(p == NULL){
     response.statusCode = 404;
@@ -54,9 +60,6 @@ turipShellResponse turipShellLocalGet(turipShellCommand* cmd){
   }
   uint8_t portData[64];
   p->transmit(portData, 64);
-  response.id= 0;
-  response.port = cmd->port;
-  response.statusCode = 200;
 
   switch(p->type){
     case TURIP_TYPE_UNKNOWN:
@@ -114,13 +117,13 @@ turipShellResponse turipShellLocalGet(turipShellCommand* cmd){
 
 turipShellResponse turipShellLocalPost(turipShellCommand* cmd){
   turipShellResponse response;
+  response.id = TURIPserver.myId;
+  response.statusCode = 200;
   TURIPport* p = TURIPserver.getPort(cmd->port);
   if(p == NULL){
     response.statusCode = 404;
     return response;
   }
-  response.statusCode = 200;
-  response.id= 0;
   response.port = cmd->port;
   response.data = cmd->data;
   union {
@@ -445,12 +448,10 @@ turipShellCommand turipShellCommandParser(const char* line){
       if(path[i] == '/') path[i] = '\0';
     }
     if(parsed.depth == 1){
-      parsed.port = (uint8_t)atoi(path[0]);
+      parsed.port = (uint8_t)atoi(pathSegments[0]);
     }else if(parsed.depth == 2){
-      parsed.id = turipIdStrToInt(path[0]);
-      parsed.port = (uint8_t)atoi(path[1]);
-    }else{
-      parsed.method = TURIP_METHOD_UNKOWN;
+      parsed.id = turipIdStrToInt(pathSegments[0]);
+      parsed.port = (uint8_t)atoi(pathSegments[1]);
     }
   }
 
