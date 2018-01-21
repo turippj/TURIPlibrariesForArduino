@@ -1,13 +1,22 @@
 #ifndef TURIP_CLIENT_H
 #define TURIP_CLIENT_H
 
-#include <stddef.h>
-#include <stdint.h>
-#include <string.h>
+// #include <stddef.h>
+// #include <stdint.h>
+// #include <string.h>
+#include <Arduino.h>
 #include "turipDefines.h"
 
-#define TURIP_MAX_DEVICES 16;
-#define TURIP_MAX_CLIENT_INTERFACES 4;
+#define TURIP_MAX_DEVICES 16
+#define TURIP_MAX_CLIENT_INTERFACES 4
+
+class turipClientInterface{
+public:
+  virtual void scan();
+  virtual TURIPdataType getType(uint64_t id, uint8_t port);
+  virtual int read(uint64_t id, uint8_t port, TURIPdataType type, void* data);
+  virtual int write(uint64_t id, uint8_t port, TURIPdataType type, void* data);
+};
 
 typedef struct {
   uint64_t id;
@@ -19,6 +28,9 @@ class TURIPdevice{
 public:
   TURIPdevice();
   int attach(uint64_t id);
+  int attach(uint32_t model, uint32_t serial){
+    return attach((uint64_t)model << 32 | (uint64_t)serial);
+  }
   TURIPdataType getType(uint8_t port);
 
   int8_t readInt8(uint8_t port);
@@ -47,14 +59,6 @@ public:
 
 private:
   turipDeviceAddr addr;
-};
-
-class turipClientInterface{
-public:
-  virtual void scan();
-  virtual TURIPdataType getType(uint64_t id, uint8_t port);
-  virtual int read(uint64_t id, uint8_t port, TURIPdataType type, void* data);
-  virtual int write(uint64_t id, uint8_t port, TURIPdataType type, void* data);
 };
 
 class cl_TURIPclient{

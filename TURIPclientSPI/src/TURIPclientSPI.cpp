@@ -25,7 +25,7 @@ void cl_TURIPclientSPI::addPin(int ssPin){
   ssPinList[numOfSsPin++] = ssPin;
 }
 
-int cl_TURIPclientSPI::scan(){
+void cl_TURIPclientSPI::scan(){
   uint64_t id;
   uint32_t model, serial;
   for(int i = 0; i < numOfSsPin; i++){
@@ -40,9 +40,9 @@ int cl_TURIPclientSPI::scan(){
   }
 }
 
-int cl_TURIPclientSPI::read(uint64_t id, int port, TURIPdataType type, void* data){
+int cl_TURIPclientSPI::read(uint64_t id, uint8_t port, TURIPdataType type, void* data){
   int ss = -1;
-  for(int i = 0; i < TURIPclient.numofDevices, i++){
+  for(int i = 0; i < TURIPclient.numofDevices; i++){
     if(TURIPclient.devices[i].id == id){
       ss = TURIPclient.devices[i].localAddr;
     }
@@ -53,7 +53,7 @@ int cl_TURIPclientSPI::read(uint64_t id, int port, TURIPdataType type, void* dat
   return readByUseSS(ss, port, type, data);
 }
 
-int cl_TURIPclientSPI::readByUseSS(int ss, int port, TURIPdataType type, void* data){
+int cl_TURIPclientSPI::readByUseSS(int ss, uint8_t port, TURIPdataType type, void* data){
   // Serial.println("cl_TURIPclientSPI::readByUseSS()");
   uint8_t status;
   uint16_t timer;
@@ -119,9 +119,9 @@ int cl_TURIPclientSPI::readByUseSS(int ss, int port, TURIPdataType type, void* d
   return TURIP_OK;
 }
 
-int cl_TURIPclientSPI::write(uint64_t id, int port, TURIPdataType type, void* data){
+int cl_TURIPclientSPI::write(uint64_t id, uint8_t port, TURIPdataType type, void* data){
   int ss = -1;
-  for(int i = 0; i < TURIPclient.numofDevices, i++){
+  for(int i = 0; i < TURIPclient.numofDevices; i++){
     if(TURIPclient.devices[i].id == id){
       ss = TURIPclient.devices[i].localAddr;
     }
@@ -198,9 +198,9 @@ int cl_TURIPclientSPI::write(uint64_t id, int port, TURIPdataType type, void* da
   return TURIP_OK;
 }
 
-TURIPdataType cl_TURIPclientSPI::getType(uint64_t id, int port){
+TURIPdataType cl_TURIPclientSPI::getType(uint64_t id, uint8_t port){
   int ss = -1;
-  for(int i = 0; i < TURIPclient.numofDevices, i++){
+  for(int i = 0; i < TURIPclient.numofDevices; i++){
     if(TURIPclient.devices[i].id == id){
       ss = TURIPclient.devices[i].localAddr;
     }

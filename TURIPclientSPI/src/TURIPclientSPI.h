@@ -7,7 +7,7 @@
 #define TURIP_ON_SPI_CLIENT_TRANS_DELAY 100
 #define TURIP_ON_SPI_CLIENT_TRANS_RETRY 512
 
-class cl_TURIPclientSPI : public TURIPclientPeripheral{
+class cl_TURIPclientSPI : public turipClientInterface{
 public:
   cl_TURIPclientSPI();
   void begin();

@@ -1,5 +1,4 @@
 #include "TURIPclient.h"
-#include <TURIPcommon.h>
 
 cl_TURIPclient TURIPclient;
 
@@ -53,90 +52,80 @@ TURIPdataType TURIPdevice::getType(uint8_t port){
   return addr.interface->getType(addr.id, port);
 }
 
-int TURIPdevice::read(uint8_t port, TURIPdataType type, void* data){
-  if(addr.interface == NULL) return TURIP_ERR;
-  return addr.interface->read(addr.id, port, type, data);
-}
-
-int TURIPdevice::write(uint8_t port, TURIPdataType type, void* data){
-  if(addr.interface == NULL) return TURIP_ERR;
-  return addr.interface->write(addr.id, port, type, data);
-}
-
 
 
 int8_t TURIPdevice::readInt8(uint8_t port){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return 0;
   int8_t data;
   addr.interface->read(addr.id, port, TURIP_TYPE_INT8, &data);
   return data;
 }
 
 int16_t TURIPdevice::readInt16(uint8_t port){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return 0;
   uint8_t data;
   addr.interface->read(addr.id, port, TURIP_TYPE_INT16, &data);
   return data;
 }
 
 int32_t TURIPdevice::readInt32(uint8_t port){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return 0;
   int32_t data;
   addr.interface->read(addr.id, port, TURIP_TYPE_INT32, &data);
   return data;
 }
 
 int64_t TURIPdevice::readInt64(uint8_t port){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return 0;
   int64_t data;
   addr.interface->read(addr.id, port, TURIP_TYPE_INT64, &data);
   return data;
 }
 
 uint8_t TURIPdevice::readUint8(uint8_t port){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return 0;
   uint8_t data;
   addr.interface->read(addr.id, port, TURIP_TYPE_UINT8, &data);
   return data;
 }
 
 uint16_t TURIPdevice::readUint16(uint8_t port){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return 0;
   uint16_t data;
   addr.interface->read(addr.id, port, TURIP_TYPE_UINT16, &data);
   return data;
 }
 
 uint32_t TURIPdevice::readUint32(uint8_t port){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return 0;
   uint32_t data;
   addr.interface->read(addr.id, port, TURIP_TYPE_UINT32, &data);
   return data;
 }
 
 uint64_t TURIPdevice::readUint64(uint8_t port){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return 0;
   uint64_t data;
   addr.interface->read(addr.id, port, TURIP_TYPE_UINT64, &data);
   return data;
 }
 
 float TURIPdevice::readFloat(uint8_t port){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return 0;
   float data;
   addr.interface->read(addr.id, port, TURIP_TYPE_FLOAT, &data);
   return data;
 }
 
 double TURIPdevice::readDouble(uint8_t port){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return 0;
   double data;
   addr.interface->read(addr.id, port, TURIP_TYPE_DOUBLE, &data);
   return data;
 }
 
 String TURIPdevice::readString(uint8_t port){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return "";
   String data;
   addr.interface->read(addr.id, port, TURIP_TYPE_STRING, &data);
   return data;
@@ -145,57 +134,57 @@ String TURIPdevice::readString(uint8_t port){
 
 
 void TURIPdevice::writeInt8(uint8_t port, int8_t data){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return;
   addr.interface->write(addr.id, port, TURIP_TYPE_INT8, &data);
 }
 
 void TURIPdevice::writeInt16(uint8_t port, int16_t data){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return;
   addr.interface->write(addr.id, port, TURIP_TYPE_INT16, &data);
 }
 
 void TURIPdevice::writeInt32(uint8_t port, int32_t data){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return;
   addr.interface->write(addr.id, port, TURIP_TYPE_INT32, &data);
 }
 
 void TURIPdevice::writeInt64(uint8_t port, int64_t data){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return;
   addr.interface->write(addr.id, port, TURIP_TYPE_INT64, &data);
 }
 
 void TURIPdevice::writeUint8(uint8_t port, uint8_t data){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return;
   addr.interface->write(addr.id, port, TURIP_TYPE_UINT8, &data);
 }
 
 void TURIPdevice::writeUint16(uint8_t port, uint16_t data){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return;
   addr.interface->write(addr.id, port, TURIP_TYPE_UINT16, &data);
 }
 
 void TURIPdevice::writeUint32(uint8_t port, uint32_t data){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return;
   addr.interface->write(addr.id, port, TURIP_TYPE_UINT32, &data);
 }
 
 void TURIPdevice::writeUint64(uint8_t port, uint64_t data){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return;
   addr.interface->write(addr.id, port, TURIP_TYPE_UINT64, &data);
 }
 
 void TURIPdevice::writeFloat(uint8_t port, float data){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return;
   addr.interface->write(addr.id, port, TURIP_TYPE_FLOAT, &data);
 }
 
 void TURIPdevice::writeDouble(uint8_t port, double data){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return;
   addr.interface->write(addr.id, port, TURIP_TYPE_DOUBLE, &data);
 }
 
 void TURIPdevice::writeString(uint8_t port, String data){
-  if(addr.interface == NULL) return TURIP_ERR;
+  if(addr.interface == NULL) return;
   addr.interface->write(addr.id, port, TURIP_TYPE_STRING, &data);
 }
 
