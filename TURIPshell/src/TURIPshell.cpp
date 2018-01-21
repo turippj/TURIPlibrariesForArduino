@@ -1,9 +1,12 @@
 #include "TURIPshell.h"
 
 String TURIPshell(String line){
-  char strBuf[64];
-  line.toCharArray(strBuf, 64);
-  return TURIPshell(strBuf);
+  size_t strBufLen = line.length();
+  char* strBuf = new char[line.length() + 1];
+  line.toCharArray(strBuf, line.length() + 1);
+  String response = TURIPshell(strBuf);
+  delete[] strBuf;
+  return response;
 }
 
 String TURIPshell(const char* line){
