@@ -31,6 +31,7 @@ turipShellResponse turipShellLocalGet(turipShellCommand* cmd);
 turipShellResponse turipShellLocalPost(turipShellCommand* cmd);
 turipShellResponse turipShellBridgeGet(turipShellCommand* cmd);
 turipShellResponse turipShellBridgePost(turipShellCommand* cmd);
+String turipIdIntToStr(uint64_t id);
 uint64_t turipIdStrToInt(const char* id);
 
 #endif

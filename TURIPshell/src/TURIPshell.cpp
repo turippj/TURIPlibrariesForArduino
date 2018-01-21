@@ -29,7 +29,7 @@ String TURIPshell(const char* line){
     strResponse += response.statusCode;
     if(response.id != 0){
       strResponse += ".\"id\":";
-      strResponse += response.id;
+      strResponse += turipIdIntToStr(response.id);
     }
     if(response.statusCode == 200){
       strResponse += ".\"port\":";
@@ -86,12 +86,12 @@ turipShellResponse turipShellLocalGet(turipShellCommand* cmd){
     case TURIP_TYPE_INT32:
       response.data = *((int32_t*)portData);
       break;
-    case TURIP_TYPE_UINT64:
-      response.data = *((uint64_t*)portData);
-      break;
-    case TURIP_TYPE_INT64:
-      response.data = *((int64_t*)portData);
-      break;
+    // case TURIP_TYPE_UINT64:
+    //   response.data = *((uint64_t*)portData);
+    //   break;
+    // case TURIP_TYPE_INT64:
+    //   response.data = *((int64_t*)portData);
+    //   break;
     case TURIP_TYPE_FLOAT:
       response.data = *((float*)portData);
       break;
@@ -120,62 +120,73 @@ turipShellResponse turipShellLocalPost(turipShellCommand* cmd){
   response.id= 0;
   response.port = cmd->port;
   response.data = cmd->data;
-  uint8_t portData[64];
+  union {
+    uint8_t ui8;
+    uint16_t ui16;
+    uint32_t ui32;
+    uint64_t ui64;
+    int8_t i8;
+    int16_t i16;
+    int32_t i32;
+    int64_t i64;
+    float f;
+    double d;
+  } buf;
 
   switch(p->type){
     case TURIP_TYPE_UNKNOWN:
       response.statusCode = 500;
       break;
     case TURIP_TYPE_BOOL:
-      if(!strcmp(cmd.data, "false")){
-        portData[0] = 0;
-      } else if(!strcmp(cmd.data, "true")){
-        portData[0] = 1;
+      if(!strcmp(cmd->data, "false")){
+        buf.i8 = 0;
+      } else if(!strcmp(cmd->data, "true")){
+        buf.i8 = 1;
       } else {
         response.statusCode = 400;
         break;
       }
-      p->receive(portData);
+      p->receive(&buf.i8);
       break;
     case TURIP_TYPE_UINT8:
-      (uint8_t)(*(&portData)) = (uint8_t)atoi(cmd->data);
-      p->receive(portData);
+      buf.ui8 = (uint8_t)atoi(cmd->data);
+      p->receive(&buf.i8);
       break;
     case TURIP_TYPE_INT8:
-      (int8_t)(*(&portData)) = (int8_t)atoi(cmd->data);
-      p->receive(portData);
+      buf.i8 = (int8_t)atoi(cmd->data);
+      p->receive(&buf.i8);
       break;
     case TURIP_TYPE_UINT16:
-      (uint16_t)(*(&portData)) = (uint16_t)atoi(cmd->data);
-      p->receive(portData);
+      buf.ui16 = (uint16_t)atoi(cmd->data);
+      p->receive(&buf.i8);
       break;
     case TURIP_TYPE_INT16:
-      (int16_t)(*(&portData)) = (int16_t)atoi(cmd->data);
-      p->receive(portData);
+      buf.i16 = (int16_t)atoi(cmd->data);
+      p->receive(&buf.i8);
       break;
     case TURIP_TYPE_UINT32:
-      (uint32_t)(*(&portData)) = (uint32_t)atoi(cmd->data);
-      p->receive(portData);
+      buf.ui32 = (uint32_t)atoi(cmd->data);
+      p->receive(&buf.i8);
       break;
     case TURIP_TYPE_INT32:
-      (int32_t)(*(&portData)) = (int32_t)atoi(cmd->data);
-      p->receive(portData);
+      buf.i32 = (int32_t)atoi(cmd->data);
+      p->receive(&buf.i8);
       break;
     case TURIP_TYPE_UINT64:
-      (uint64_t)(*(&portData)) = (uint64_t)atoi(cmd->data);
-      p->receive(portData);
+      buf.ui64 = (uint64_t)atoi(cmd->data);
+      p->receive(&buf.i8);
       break;
     case TURIP_TYPE_INT64:
-      (int64_t)(*(&portData)) = (int64_t)atoi(cmd->data);
-      p->receive(portData);
+      buf.i64 = (int64_t)atoi(cmd->data);
+      p->receive(&buf.i8);
       break;
     case TURIP_TYPE_FLOAT:
-      (float)(*(&portData)) = (float)atof(cmd->data);
-      p->receive(portData);
+      buf.f = (float)atof(cmd->data);
+      p->receive(&buf.i8);
       break;
     case TURIP_TYPE_DOUBLE:
-      (double)(*(&portData)) = (double)atof(cmd->data);
-      p->receive(portData);
+      buf.d = (double)atof(cmd->data);
+      p->receive(&buf.i8);
       break;
     case TURIP_TYPE_STRING:
       p->receive(cmd->data);
@@ -190,9 +201,9 @@ turipShellResponse turipShellBridgeGet(turipShellCommand* cmd){
   turipShellResponse response;
   TURIPdevice dev;
 
-  if(dev.attach(cmd->ids[0]) == 0){
+  if(dev.attach(cmd->id) == 0){
     response.statusCode = 200;
-    response.id = cmd->ids[0];
+    response.id = cmd->id;
     response.port = cmd->port;
 
     switch(dev.getType(cmd->port)){
@@ -214,12 +225,12 @@ turipShellResponse turipShellBridgeGet(turipShellCommand* cmd){
       case TURIP_TYPE_INT32:
         response.data = dev.readInt32(cmd->port);
         break;
-      case TURIP_TYPE_UINT64:
-        response.data = dev.readUint64(cmd->port);
-        break;
-      case TURIP_TYPE_INT64:
-        response.data = dev.readInt64(cmd->port);
-        break;
+      // case TURIP_TYPE_UINT64:
+      //   response.data = dev.readUint64(cmd->port);
+      //   break;
+      // case TURIP_TYPE_INT64:
+      //   response.data = dev.readInt64(cmd->port);
+      //   break;
       case TURIP_TYPE_FLOAT:
         response.data = dev.readFloat(cmd->port);
         break;
@@ -227,9 +238,9 @@ turipShellResponse turipShellBridgeGet(turipShellCommand* cmd){
         response.data = dev.readDouble(cmd->port);
         break;
       case TURIP_TYPE_STRING:
-        *obj = "\"";
+        response.data = "\"";
         response.data += dev.readString(cmd->port);
-        *obj += "\"";
+        response.data += "\"";
         break;
       default:
         response.statusCode = 500;
@@ -247,7 +258,7 @@ turipShellResponse turipShellBridgePost(turipShellCommand* cmd){
 
   if(dev.attach(cmd->id) == 0){
     response.statusCode = 200;
-    response.id = cmd->ids[0];
+    response.id = cmd->id;
     response.port = cmd->port;
     response.data = cmd->data;
 
@@ -386,8 +397,8 @@ turipShellCommand turipShellCommandParser(const char* line){
         if(raw[i] == ' ') break;
       }
     }
-    if (input[i] == ' '){
-      input[i] = '\0';
+    if (raw[i] == ' '){
+      raw[i] = '\0';
     }
   }
 
@@ -422,7 +433,7 @@ turipShellCommand turipShellCommandParser(const char* line){
     char* pathSegments[5];
     for(int i = 0; i < pathLength; i++){
       if(path[i] != '/'){
-        pathSegments[depth] = &path[i];
+        pathSegments[parsed.depth] = &path[i];
         parsed.depth++;
         for(; i < pathLength; i++){
           if(path[i] == '/') break;
