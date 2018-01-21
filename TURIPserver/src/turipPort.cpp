@@ -18,52 +18,92 @@ TURIPport::TURIPport(uint8_t portNum){
 }
 
 int8_t TURIPport::readInt8(){
-  if(type == TURIP_TYPE_INT8) return (int8_t&)cache;
+  if(type == TURIP_TYPE_INT8){
+    int8_t buf;
+    memcpy(&buf, cache, sizeof(int8_t));
+    return buf;
+  }
   return 0;
 }
 
 int16_t TURIPport::readInt16(){
-  if(type == TURIP_TYPE_INT16) return (int16_t&)cache;
+  if(type == TURIP_TYPE_INT16){
+    int16_t buf;
+    memcpy(&buf, cache, sizeof(int16_t));
+    return buf;
+  }
   return 0;
 }
 
 int32_t TURIPport::readInt32(){
-  if(type == TURIP_TYPE_INT32) return (int32_t&)cache;
+  if(type == TURIP_TYPE_INT32){
+    int32_t buf;
+    memcpy(&buf, cache, sizeof(int32_t));
+    return buf;
+  }
   return 0;
 }
 
 int64_t TURIPport::readInt64(){
-  if(type == TURIP_TYPE_INT64) return (int64_t&)cache;
+  if(type == TURIP_TYPE_INT64){
+    int64_t buf;
+    memcpy(&buf, cache, sizeof(int64_t));
+    return buf;
+  }
   return 0;
 }
 
 uint8_t TURIPport::readUint8(){
-  if(type == TURIP_TYPE_UINT8) return (uint8_t&)cache;
+  if(type == TURIP_TYPE_UINT8){
+    uint8_t buf;
+    memcpy(&buf, cache, sizeof(uint8_t));
+    return buf;
+  }
   return 0;
 }
 
 uint16_t TURIPport::readUint16(){
-  if(type == TURIP_TYPE_UINT16) return (uint16_t&)cache;
+  if(type == TURIP_TYPE_UINT16){
+    uint16_t buf;
+    memcpy(&buf, cache, sizeof(uint16_t));
+    return buf;
+  }
   return 0;
 }
 
 uint32_t TURIPport::readUint32(){
-  if(type == TURIP_TYPE_UINT32) return (uint32_t&)cache;
+  if(type == TURIP_TYPE_UINT32){
+    uint32_t buf;
+    memcpy(&buf, cache, sizeof(uint32_t));
+    return buf;
+  }
   return 0;
 }
 
 uint64_t TURIPport::readUint64(){
-  if(type == TURIP_TYPE_UINT64) return (uint64_t&)cache;
+  if(type == TURIP_TYPE_UINT64){
+    uint64_t buf;
+    memcpy(&buf, cache, sizeof(uint64_t));
+    return buf;
+  }
   return 0;
 }
 
 float TURIPport::readFloat(){
-  if(type == TURIP_TYPE_FLOAT) return (float&)cache;
+  if(type == TURIP_TYPE_FLOAT){
+    float buf;
+    memcpy(&buf, cache, sizeof(float));
+    return buf;
+  }
   return 0;
 }
 
 double TURIPport::readDouble(){
-  if(type == TURIP_TYPE_DOUBLE) return (double&)cache;
+  if(type == TURIP_TYPE_DOUBLE){
+    double buf;
+    memcpy(&buf, cache, sizeof(double));
+    return buf;
+  }
   return 0;
 }
 

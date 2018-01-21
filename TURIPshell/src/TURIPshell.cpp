@@ -27,9 +27,22 @@ String TURIPshell(const char* line){
   String strResponse;
   strResponse = "{\"status\":";
   if(cmd.depth == 0 && cmd.method == TURIP_METHOD_GET){
-    strResponse += "200,\"protocol\":\"TURIP\",\"id\":\"\"";
+    strResponse += "200,\"protocol\":\"TURIP\",\"id\":\"";
     strResponse += turipIdIntToStr(TURIPserver.myId);
     strResponse += "\"";
+    TURIPclient.scan();
+    if(TURIPclient.numofDevices > 0){
+      strResponse += ",\"bridge\":[";
+      for(int i = 0;;){
+        strResponse += "\"";
+        strResponse += turipIdIntToStr(TURIPclient.devices[i].id);
+        strResponse += "\"";
+        i++;
+        if(i == TURIPclient.numofDevices) break;
+        strResponse += ",";
+      }
+      strResponse += "]";
+    }
   }else{
     strResponse += response.statusCode;
     if(response.id != 0){
