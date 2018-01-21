@@ -7,8 +7,8 @@ struct st_TURIPserverSPI_buffer ns_TURIPserverSPI::txBuf;
 cl_TURIPserverSPI TURIPserverSPI;
 
 cl_TURIPserverSPI::cl_TURIPserverSPI(){
-  rxBuf.maxLength = 16; rxBuf.readPoint = 0; rxBuf.writePoint = 0;
-  txBuf.maxLength = 16; txBuf.readPoint = 0; txBuf.writePoint = 0;
+  rxBuf.maxLength = 32; rxBuf.readPoint = 0; rxBuf.writePoint = 0;
+  txBuf.maxLength = 32; txBuf.readPoint = 0; txBuf.writePoint = 0;
   rxBuf.buffer = new uint8_t[rxBuf.maxLength];
   txBuf.buffer = new uint8_t[txBuf.maxLength];
 }
@@ -47,7 +47,7 @@ void cl_TURIPserverSPI::update(){
   if(rxBuf.writePoint){
     // rxバッファに何かしら入っている->有効なデータの可能性あり
     // ヘッダを解析してデータが足りているか確認し、足りている場合は実際の処理を行う
-    TURIPport* port = TURIPserver.get(rxBuf.buffer[0] & 0x7f);
+    TURIPport* port = TURIPserver.getPort(rxBuf.buffer[0] & 0x7f);
     if(port == NULL){
       noInterrupts();
       //バッファのリセット
@@ -60,11 +60,11 @@ void cl_TURIPserverSPI::update(){
       interrupts();
     }else if(rxBuf.buffer[0]&0x80){
       //Writeモード(client->server)の処理
-      int sizeofData = sizeofTuripDataType(port->getType());
+      int sizeofData = port->cacheSize;
       if(rxBuf.writePoint > sizeofData){
         // データが十分に揃っている場合
         //　ユーザー領域へデータをコピー
-        port->writeMemory(&rxBuf.buffer[1]);
+        port->receive(&rxBuf.buffer[1]);
         noInterrupts();
         //バッファのリセット
         rxBuf.writePoint = 0;
@@ -72,30 +72,7 @@ void cl_TURIPserverSPI::update(){
         txBuf.writePoint = 0;
         txBuf.readPoint = 0;
         // Set "Data type" bits.
-        uint8_t typeFlags = 0;
-        switch(port->getType()){
-          case BOOL:
-            typeFlags = 0x1;
-            break;
-          case INT8:
-            typeFlags = 0x2;
-            break;
-          case INT16:
-            typeFlags = 0x3;
-            break;
-          case INT32:
-            typeFlags = 0x4;
-            break;
-          case INT64:
-            typeFlags = 0x5;
-            break;
-          case FLOAT:
-            typeFlags = 0xc;
-            break;
-          case DOUBLE:
-            typeFlags = 0xd;
-            break;
-        }
+        uint8_t typeFlags = (uint8_t)port->type;
         // ACK送信
         txBuf.buffer[txBuf.writePoint++] = 0x00 | typeFlags;
         interrupts();
@@ -110,34 +87,11 @@ void cl_TURIPserverSPI::update(){
       txBuf.writePoint = 0;
       txBuf.readPoint = 0;
       // Set "Data type" bits.
-      uint8_t typeFlags = 0;
-      switch(port->getType()){
-        case BOOL:
-          typeFlags = 0x1;
-          break;
-        case INT8:
-          typeFlags = 0x2;
-          break;
-        case INT16:
-          typeFlags = 0x3;
-          break;
-        case INT32:
-          typeFlags = 0x4;
-          break;
-        case INT64:
-          typeFlags = 0x5;
-          break;
-        case FLOAT:
-          typeFlags = 0xc;
-          break;
-        case DOUBLE:
-          typeFlags = 0xd;
-          break;
-      }
+      uint8_t typeFlags = (uint8_t)port->type;
       // 転送
       txBuf.buffer[txBuf.writePoint++] = 0x00 | typeFlags;
-      int sizeofData = sizeofTuripDataType(port->getType());
-      memcpy(&txBuf.buffer[txBuf.writePoint], port->readMemory(), sizeofData);
+      int sizeofData = port->cacheSize;
+      port->transmit(&txBuf.buffer[txBuf.writePoint], txBuf.maxLength - 1);
       txBuf.writePoint += sizeofData;
       // Serial.println(port->read<long>(), HEX);
       // for(int i=sizeofData; i>0; i--){

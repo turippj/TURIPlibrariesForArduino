@@ -1,9 +1,10 @@
 #ifndef TURIP_PORT_H
 #define TURIP_PORT_H
 
-#include <stddef.h>
-#include <stdint.h>
-#include <string.h>
+// #include <stddef.h>
+// #include <stdint.h>
+// #include <string.h>
+#include <Arduino.h>
 #include "turipDefines.h"
 
 #define MAX_STRING_LENGTH 256
@@ -49,7 +50,7 @@ public:
   int type;
   int permission;
   int cacheSize;
-  uint8_t* volatile cache;
+  void* volatile cache;
   void (*preReceiveFunc)(void);
   void (*postReceiveFunc)(void);
   void (*preTransmitFunc)(void);

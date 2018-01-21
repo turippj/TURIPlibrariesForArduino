@@ -13,6 +13,15 @@ const int PIN_DI2 = 8;
 const int PIN_DO1 = 3;
 const int PIN_DO2 = 4;
 
+TURIPport dIn1(1);
+TURIPport dIN2(2);
+TURIPport dOut1(3);
+TURIPport dOut2(4);
+TURIPport aIn1(5);
+TURIPport aIn2(6);
+TURIPport aOut1(7);
+TURIPport aOut2(8);
+
 void setup(){
   TURIPserverSPI.begin();
   pinMode(PIN_DI1, INPUT);
@@ -21,15 +30,6 @@ void setup(){
   pinMode(PIN_DO2, OUTPUT);
   analogWrite(PIN_AO1, 0);
   analogWrite(PIN_AO2, 0);
-
-  TURIPport dIn1(1);
-  TURIPport dIN2(2);
-  TURIPport dOut1(3);
-  TURIPport dOut2(4);
-  TURIPport aIn1(5);
-  TURIPport aIn2(6);
-  TURIPport aOut1(7);
-  TURIPport aOut2(8);
 
   aIn1.postReceiveFunc = setValues;
 }
@@ -41,6 +41,6 @@ void loop(){
 void setValues(){
   analogWrite(PIN_AO1, aOut1.readUint16());
   analogWrite(PIN_AO1, aOut2.readUint16());
-  aIn1.writeUint16(analogRead(PIN_AI1););
-  aIn2.writeUint16(analogRead(PIN_AI2););
+  aIn1.writeUint16(analogRead(PIN_AI1));
+  aIn2.writeUint16(analogRead(PIN_AI2));
 }
