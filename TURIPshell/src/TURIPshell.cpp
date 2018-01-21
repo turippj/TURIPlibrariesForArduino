@@ -138,7 +138,6 @@ turipShellResponse turipShellLocalPost(turipShellCommand* cmd){
     return response;
   }
   response.port = cmd->port;
-  response.data = cmd->data;
   union {
     uint8_t ui8;
     uint16_t ui16;
@@ -159,8 +158,10 @@ turipShellResponse turipShellLocalPost(turipShellCommand* cmd){
     case TURIP_TYPE_BOOL:
       if(!strcmp(cmd->data, "false")){
         buf.i8 = 0;
+        response.data = "false";
       } else if(!strcmp(cmd->data, "true")){
         buf.i8 = 1;
+        response.data = "true";
       } else {
         response.statusCode = 400;
         break;
@@ -170,42 +171,52 @@ turipShellResponse turipShellLocalPost(turipShellCommand* cmd){
     case TURIP_TYPE_UINT8:
       buf.ui8 = (uint8_t)atoi(cmd->data);
       p->receive(&buf.i8);
+      response.data = buf.ui8;
       break;
     case TURIP_TYPE_INT8:
       buf.i8 = (int8_t)atoi(cmd->data);
       p->receive(&buf.i8);
+      response.data = buf.i8;
       break;
     case TURIP_TYPE_UINT16:
       buf.ui16 = (uint16_t)atoi(cmd->data);
       p->receive(&buf.i8);
+      response.data = buf.ui16;
       break;
     case TURIP_TYPE_INT16:
       buf.i16 = (int16_t)atoi(cmd->data);
       p->receive(&buf.i8);
+      response.data = buf.i16;
       break;
     case TURIP_TYPE_UINT32:
       buf.ui32 = (uint32_t)atoi(cmd->data);
       p->receive(&buf.i8);
+      response.data = buf.ui32;
       break;
     case TURIP_TYPE_INT32:
       buf.i32 = (int32_t)atoi(cmd->data);
       p->receive(&buf.i8);
+      response.data = buf.i32;
       break;
-    case TURIP_TYPE_UINT64:
-      buf.ui64 = (uint64_t)atoi(cmd->data);
-      p->receive(&buf.i8);
-      break;
-    case TURIP_TYPE_INT64:
-      buf.i64 = (int64_t)atoi(cmd->data);
-      p->receive(&buf.i8);
-      break;
+    // case TURIP_TYPE_UINT64:
+    //   buf.ui64 = (uint64_t)atoi(cmd->data);
+    //   p->receive(&buf.i8);
+    //   response.data = buf.ui64;
+    //   break;
+    // case TURIP_TYPE_INT64:
+    //   buf.i64 = (int64_t)atoi(cmd->data);
+    //   p->receive(&buf.i8);
+    //   response.data = buf.i64;
+    //   break;
     case TURIP_TYPE_FLOAT:
       buf.f = (float)atof(cmd->data);
       p->receive(&buf.i8);
+      response.data = buf.f;
       break;
     case TURIP_TYPE_DOUBLE:
       buf.d = (double)atof(cmd->data);
       p->receive(&buf.i8);
+      response.data = buf.d;
       break;
     case TURIP_TYPE_STRING:
       p->receive(cmd->data);
@@ -219,6 +230,7 @@ turipShellResponse turipShellLocalPost(turipShellCommand* cmd){
 turipShellResponse turipShellBridgeGet(turipShellCommand* cmd){
   turipShellResponse response;
   TURIPdevice dev;
+  response.id = 0;
 
   if(dev.attach(cmd->id) == 0){
     response.statusCode = 200;
@@ -300,12 +312,12 @@ turipShellResponse turipShellBridgePost(turipShellCommand* cmd){
       case TURIP_TYPE_INT32:
         dev.writeInt32(cmd->port, (int32_t)atoi(cmd->data));
         break;
-      case TURIP_TYPE_UINT64:
-        dev.writeUint64(cmd->port, (uint64_t)atoi(cmd->data));
-        break;
-      case TURIP_TYPE_INT64:
-        dev.writeInt64(cmd->port, (int64_t)atoi(cmd->data));
-        break;
+      // case TURIP_TYPE_UINT64:
+      //   dev.writeUint64(cmd->port, (uint64_t)atoi(cmd->data));
+      //   break;
+      // case TURIP_TYPE_INT64:
+      //   dev.writeInt64(cmd->port, (int64_t)atoi(cmd->data));
+      //   break;
       case TURIP_TYPE_FLOAT:
         dev.writeFloat(cmd->port, (float)atof(cmd->data));
         break;
@@ -398,10 +410,14 @@ turipShellCommand turipShellCommandParser(const char* line){
 
   for (size_t i = 0; i < lineLength; i++) {
     if(raw[i] == '\"'){
-      args[numofArgs] = &raw[i];
+      raw[i] = '\0';
+      args[numofArgs] = &raw[++i];
       numofArgs++;
       for(i++; i < lineLength; i++){
-        if (raw[i] == '\"') break;
+        if (raw[i] == '\"'){
+          raw[i] = '\0';
+          break;
+        }
       }
     }else if(raw[i] == '\''){
       args[numofArgs] = &raw[i];
