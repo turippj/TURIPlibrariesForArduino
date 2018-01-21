@@ -21,6 +21,7 @@ TURIPport* aIn1;
 TURIPport* aIn2;
 TURIPport* aOut1;
 TURIPport* aOut2;
+TURIPport* strPort;
 
 void setup(){
   Serial.begin(9600);
@@ -41,6 +42,7 @@ void setup(){
   aIn2 = TURIPserver.newPort(6);
   aOut1 = TURIPserver.newPort(7);
   aOut2 = TURIPserver.newPort(8);
+  strPort = TURIPserver.newPort(10);
 
   dIn1->writeUint16(0);
   dIN2->writeUint16(0);
@@ -50,6 +52,7 @@ void setup(){
   aIn2->writeUint16(0);
   aOut1->writeUint16(0);
   aOut2->writeUint16(0);
+  strPort->writeString(String("This is GPIO server."));
 
   aIn1->preTransmitFunc = setValues;
   aIn2->preTransmitFunc = setValues;
