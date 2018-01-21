@@ -1,12 +1,9 @@
-#include <SPI.h>
-#include <TURIPcommon.h>
-#include <TURIPclient.h>
 #include <TURIPclientSPI.h>
 #include <TURIPserver.h>
 #include <TURIPshell.h>
 
-const uint32_t TURIP_MODEL = 0x00000001;
-const uint32_t TURIP_SERIAL = 0x00000000;
+const uint32_t TURIP_MODEL = 0x792a;
+const uint32_t TURIP_SERIAL = 0x0;
 
 void setup() {
   Serial.begin(9600);
