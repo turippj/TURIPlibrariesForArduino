@@ -166,60 +166,60 @@ turipShellResponse turipShellLocalPost(turipShellCommand* cmd){
         response.statusCode = 400;
         break;
       }
-      p->receive(&buf.i8);
+      p->receive(&buf.ui8);
       break;
     case TURIP_TYPE_UINT8:
       buf.ui8 = (uint8_t)atoi(cmd->data);
-      p->receive(&buf.i8);
+      p->receive(&buf.ui8);
       response.data = buf.ui8;
       break;
     case TURIP_TYPE_INT8:
       buf.i8 = (int8_t)atoi(cmd->data);
-      p->receive(&buf.i8);
+      p->receive(&buf.ui8);
       response.data = buf.i8;
       break;
     case TURIP_TYPE_UINT16:
       buf.ui16 = (uint16_t)atoi(cmd->data);
-      p->receive(&buf.i8);
+      p->receive(&buf.ui8);
       response.data = buf.ui16;
       break;
     case TURIP_TYPE_INT16:
       buf.i16 = (int16_t)atoi(cmd->data);
-      p->receive(&buf.i8);
+      p->receive(&buf.ui8);
       response.data = buf.i16;
       break;
     case TURIP_TYPE_UINT32:
       buf.ui32 = (uint32_t)atoi(cmd->data);
-      p->receive(&buf.i8);
+      p->receive(&buf.ui8);
       response.data = buf.ui32;
       break;
     case TURIP_TYPE_INT32:
       buf.i32 = (int32_t)atoi(cmd->data);
-      p->receive(&buf.i8);
+      p->receive(&buf.ui8);
       response.data = buf.i32;
       break;
     // case TURIP_TYPE_UINT64:
     //   buf.ui64 = (uint64_t)atoi(cmd->data);
-    //   p->receive(&buf.i8);
+    //   p->receive(&buf.ui8);
     //   response.data = buf.ui64;
     //   break;
     // case TURIP_TYPE_INT64:
     //   buf.i64 = (int64_t)atoi(cmd->data);
-    //   p->receive(&buf.i8);
+    //   p->receive(&buf.ui8);
     //   response.data = buf.i64;
     //   break;
     case TURIP_TYPE_FLOAT:
       buf.f = (float)atof(cmd->data);
-      p->receive(&buf.i8);
+      p->receive(&buf.ui8);
       response.data = buf.f;
       break;
     case TURIP_TYPE_DOUBLE:
       buf.d = (double)atof(cmd->data);
-      p->receive(&buf.i8);
+      p->receive(&buf.ui8);
       response.data = buf.d;
       break;
     case TURIP_TYPE_STRING:
-      p->receive(cmd->data);
+      p->receive((uint8_t*)cmd->data);
       response.data = "\"";
       response.data += cmd->data;
       response.data += "\"";

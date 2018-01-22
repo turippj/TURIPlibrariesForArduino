@@ -281,7 +281,7 @@ void TURIPport::writeString(String data){
 int TURIPport::receive(uint8_t* data){
   if(preReceiveFunc != NULL) preReceiveFunc();
   if(type == TURIP_TYPE_STRING){
-    int dataSize = strlen(data) + 1;
+    size_t dataSize = strlen((char*)data) + 1;
     if(dataSize > cacheSize){
       if(cache != NULL){
         delete[] cache;
@@ -289,7 +289,7 @@ int TURIPport::receive(uint8_t* data){
       cacheSize = dataSize;
       cache = new uint8_t[cacheSize];
     }
-    strcpy(cache, (char*)data);
+    strcpy((char*)cache, (char*)data);
   }else{
     memcpy(cache, data, cacheSize);
   }
