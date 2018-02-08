@@ -46,14 +46,14 @@ String TURIPshell(const char* line){
   }else{
     strResponse += response.statusCode;
     if(response.id != 0){
-      strResponse += ".\"id\":\"";
+      strResponse += ",\"id\":\"";
       strResponse += turipIdIntToStr(response.id);
       strResponse += "\"";
     }
     if(response.statusCode == 200){
-      strResponse += ".\"port\":";
+      strResponse += ",\"port\":";
       strResponse += response.port;
-      strResponse += ".\"data\":";
+      strResponse += ",\"data\":";
       strResponse += response.data;
     }
   }
