@@ -1,0 +1,63 @@
+#######################################
+# Syntax Coloring Map For TURIP library
+#######################################
+
+#######################################
+# Library (KEYWORD1)
+#######################################
+
+TURIPserver	KEYWORD1
+TURIPserverSPI	KEYWORD1
+TURIPclient	KEYWORD1
+TURIPclientSPI	KEYWORD1
+TURIPshell	KEYWORD1
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+TURIP	KEYWORD1	TURIP
+TURIPport	KEYWORD1
+TURIPdevice	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+
+readBool	KEYWORD2
+readInt8	KEYWORD2
+readInt16	KEYWORD2
+readInt32	KEYWORD2
+readInt64	KEYWORD2
+readUint8	KEYWORD2
+readUint16	KEYWORD2
+readUint32	KEYWORD2
+readUint64	KEYWORD2
+readFloat	KEYWORD2
+readDouble	KEYWORD2
+
+writeBool	KEYWORD2
+writeInt8	KEYWORD2
+writeInt16	KEYWORD2
+writeInt32	KEYWORD2
+writeInt64	KEYWORD2
+writeUint8	KEYWORD2
+writeUint16	KEYWORD2
+writeUint32	KEYWORD2
+writeUint64	KEYWORD2
+writeFloat	KEYWORD2
+writeDouble	KEYWORD2
+
+preTransmitFunc	KEYWORD2
+postTransmitFunc	KEYWORD2
+preReceiveFunc	KEYWORD2
+postReceiveFunc	KEYWORD2
+
+addPin	KEYWORD2
+
+
+#######################################
+# Constants (LITERAL1)
+#######################################
