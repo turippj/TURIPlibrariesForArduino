@@ -1,3 +1,0 @@
-= TURIPserver Library for Arduino =
-
-https://www.turip.org
