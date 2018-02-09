@@ -2,11 +2,6 @@
 
 https://travis-ci.org/turippj/TURIPlibrariesForArduino[image:https://travis-ci.org/turippj/TURIPlibrariesForArduino.svg?branch=master[Build Status]]
 
-TURIPをArduino上で利用するためのライブラリです。
+TURIP (Tiny Universal Robot Intereface Protocol; Torrori University Robot Intereface Protocol) is a lightweight protocol for Robot controlling and IoT applications.
 
-TURIPにはServerとClientが存在します。
-組み込み分野ではServerのことをSlaveと、ClientのことをMasterと呼ぶ場合がありますが、TURIPでは先述の表記に統一しています。
-ライブラリは、ServerとClientそれぞれ、2層構造になっています。
-例えば、Serverを構築するには、TURIPserverライブラリと、TURIPserver[インターフェイス名]ライブラリの両方を必要とします。
-
-https://www.turip.org
+Website: https://www.turip.org
