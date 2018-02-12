@@ -4,4 +4,4 @@ https://travis-ci.org/turippj/TURIPlibrariesForArduino[image:https://travis-ci.o
 
 TURIP (Tiny Universal Robot Intereface Protocol; Torrori University Robot Intereface Protocol) is a lightweight protocol for Robot controlling and IoT applications.
 
-Website: https://www.turip.org
+Website: https://turip.org
