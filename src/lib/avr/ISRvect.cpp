@@ -1,3 +1,5 @@
+#if defined(AVR_UNO) || defined(AVR_PRO)
+
 #include "../../TURIPserverSPI.h"
 using namespace ns_TURIPserverSPI;
 
@@ -22,3 +24,5 @@ ISR(SPI_STC_vect){
 //   txBuf.readPoint = 0;
 //   SPDR = 0xff;
 // }
+
+#endif
