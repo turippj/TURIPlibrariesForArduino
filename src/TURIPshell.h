@@ -9,29 +9,27 @@
 #include "TURIPclient.h"
 
 typedef struct {
-  int method;
-  int port;
-  int depth;
-  uint64_t id;
-  char* data;
-  char** raw;
+  uint8_t method;
+  uint8_t port;
+  uint64_t path[4];
+  uint8_t path_depth;
+  char data[64];
 } turipShellCommand;
 
 typedef struct {
   int statusCode;
   uint64_t id;
   uint8_t port;
-  String data;
+  char data[64];
 } turipShellResponse;
 
-String TURIPshell(const char* line);
-String TURIPshell(String line);
+void TURIPshell(const char* line, char* response, size_t response_maxlength);
 turipShellCommand turipShellCommandParser(const char* line);
 turipShellResponse turipShellLocalGet(turipShellCommand* cmd);
 turipShellResponse turipShellLocalPost(turipShellCommand* cmd);
 turipShellResponse turipShellBridgeGet(turipShellCommand* cmd);
 turipShellResponse turipShellBridgePost(turipShellCommand* cmd);
-String turipIdIntToStr(uint64_t id);
-uint64_t turipIdStrToInt(const char* id);
+void turipId_itoa(uint64_t id, char* response, size_t response_maxlength);
+uint64_t turipId_atoi(const char* id);
 
 #endif

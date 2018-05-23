@@ -9,7 +9,7 @@ String TURIPshell(String line){
   return response;
 }
 
-String TURIPshell(const char* line){
+void TURIPshell(const char* line, char* response, size_t response_maxlength){
   turipShellCommand cmd = turipShellCommandParser(line);
   turipShellResponse response;
   response.id = 0;
@@ -440,44 +440,51 @@ String turipIdIntToStr(uint64_t id){
 
 turipShellCommand turipShellCommandParser(const char* line){
   turipShellCommand parsed;
-  int numofArgs = 0;
-  char* args[5];
-  int lineLength = strlen(line);
-  char* raw = new char[lineLength + 1];
-  strcpy(raw, line);
+  parsed.method = TURIP_METHOD_UNKOWN;
+  parsed.path_depth = 0;
+  size_t line_length = strlen(line);
+  size_t line_ptr = 0;
+  char* cBuf = parsed.data;
+  const size_t cBuf_maxlength = 64;
+  size_t cBuf_length = 0;
 
-  for (size_t i = 0; i < lineLength; i++) {
-    if(raw[i] == '\"'){
-      raw[i] = '\0';
-      args[numofArgs] = &raw[++i];
-      numofArgs++;
-      for(i++; i < lineLength; i++){
-        if (raw[i] == '\"'){
-          raw[i] = '\0';
-          break;
-        }
-      }
-    }else if(raw[i] == '\''){
-      args[numofArgs] = &raw[i];
-      numofArgs++;
-      for(i++; i < lineLength; i++){
-        if (raw[i] == '\'') break;
-      }
-    }else if(raw[i] != ' '){
-      args[numofArgs] = &raw[i];
-      numofArgs++;
-      for(; i < lineLength; i++){
-        if(raw[i] == ' ') break;
-      }
-    }
-    if (raw[i] == ' '){
-      raw[i] = '\0';
+  // Looking for root path
+  for(; line_ptr < line_length; line_ptr++){
+    if(line[line_ptr] == '/'){
+      parsed.method = TURIP_METHOD_GET;
+      break;
     }
   }
 
-  parsed.method = TURIP_METHOD_UNKOWN;
-  parsed.data = NULL;
-  char* path = NULL;
+  // Get path
+  if(parsed.method == TURIP_METHOD_GET){
+    for(; line_ptr < line_length; line_ptr++){
+      if(line[line_ptr] == '/'){
+        if(parsed.path_depth < 4){
+          if(!turipId_atoi(&line[line_ptr + 1], &parsed.path[parsed.path_depth])) parsed.path_depth++;
+        }
+      }else if(line[line_ptr] == ' ') break;
+    }
+
+    // Looking for data
+    for(; line_ptr < line_length; line_ptr++){
+      if(line[line_ptr] > ' '){
+        parsed.method = TURIP_METHOD_POST;
+        break;
+      }
+    }
+  }
+
+  // Get data
+  if(parsed.method == TURIP_METHOD_POST){
+    size_t dataBegin_ptr = line_ptr;
+    for(; line_ptr < line_length; line_ptr++){
+      if(line[line_ptr] <= ' '){
+        break;
+      }
+    }
+    memcpy(parsed.data, &line[dataBegin_ptr], dataEnd_ptr - line_ptr);
+  }
 
   if(args[0][0] == '/'){
     path = args[0];
