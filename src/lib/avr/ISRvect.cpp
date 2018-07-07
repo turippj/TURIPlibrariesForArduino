@@ -1,6 +1,7 @@
 #include "../../TURIPserverSPI.h"
 using namespace ns_TURIPserverSPI;
 
+#ifdef __AVR__
 ISR(SPI_STC_vect){
   // 受信バッファが空の場合、0xff以外が来たときにデータ格納
   // 受信バッファに何か入っている場合、無条件で格納。ただし、溢れるようなら格納しない。
@@ -13,6 +14,7 @@ ISR(SPI_STC_vect){
   if(txBuf.readPoint < txBuf.writePoint) SPDR = txBuf.buffer[txBuf.readPoint++];
   else SPDR = 0xff;
 }
+#endif
 
 // Disabled due to conflict with SoftwareSerial.
 // ISR(PCINT0_vect){

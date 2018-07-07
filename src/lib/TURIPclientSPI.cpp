@@ -17,7 +17,7 @@ void cl_TURIPclientSPI::begin(){
   SPI.setFrequency(200000);
   SPI.setDataMode(SPI_MODE0);
   SPI.begin(17, 18, 16, 19); // Temporal setting for test device.
-  #else
+  #elif __AVR__
   SPI.setClockDivider(SPI_CLOCK_DIV16);
   SPI.begin();
   #endif
