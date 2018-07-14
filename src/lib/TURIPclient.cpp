@@ -124,11 +124,9 @@ double TURIPdevice::readDouble(uint8_t port){
   return data;
 }
 
-String TURIPdevice::readString(uint8_t port){
-  if(addr.interface == NULL) return "";
-  String data;
+void TURIPdevice::readString(uint8_t port, char* data, size_t length){
+  if(addr.interface == NULL) data[0] = '\0';
   addr.interface->read(addr.id, port, TURIP_TYPE_STRING, &data);
-  return data;
 }
 
 
@@ -183,7 +181,7 @@ void TURIPdevice::writeDouble(uint8_t port, double data){
   addr.interface->write(addr.id, port, TURIP_TYPE_DOUBLE, &data);
 }
 
-void TURIPdevice::writeString(uint8_t port, String data){
+void TURIPdevice::writeString(uint8_t port, const char* data){
   if(addr.interface == NULL) return;
   addr.interface->write(addr.id, port, TURIP_TYPE_STRING, &data);
 }

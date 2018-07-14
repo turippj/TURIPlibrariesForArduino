@@ -21,17 +21,16 @@ typedef struct {
   int statusCode;
   uint64_t id;
   uint8_t port;
-  String data;
+  char data[64];
 } turipShellResponse;
 
-String TURIPshell(const char* line);
-String TURIPshell(String line);
+void TURIPshell(const char* line, char* output, size_t maxLength);
 turipShellCommand turipShellCommandParser(const char* line);
 turipShellResponse turipShellLocalGet(turipShellCommand* cmd);
 turipShellResponse turipShellLocalPost(turipShellCommand* cmd);
 turipShellResponse turipShellBridgeGet(turipShellCommand* cmd);
 turipShellResponse turipShellBridgePost(turipShellCommand* cmd);
-String turipIdIntToStr(uint64_t id);
+void turipIdIntToStr(uint64_t id, char* output);
 uint64_t turipIdStrToInt(const char* id);
 
 #endif
