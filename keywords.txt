@@ -16,7 +16,7 @@ TURIPshell	KEYWORD1
 # Datatypes (KEYWORD1)
 #######################################
 
-TURIP	KEYWORD1	TURIP
+TURIP	KEYWORD1
 TURIPport	KEYWORD1
 TURIPdevice	KEYWORD1
 
