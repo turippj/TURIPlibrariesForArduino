@@ -43,7 +43,7 @@ public:
   uint64_t readUint64(uint8_t port);
   float readFloat(uint8_t port);
   double readDouble(uint8_t port);
-  String readString(uint8_t port);
+  void readString(uint8_t port, char* data, size_t length);
 
   void writeInt8(uint8_t port, int8_t data);
   void writeInt16(uint8_t port, int16_t data);
@@ -55,7 +55,7 @@ public:
   void writeUint64(uint8_t port, uint64_t data);
   void writeFloat(uint8_t port, float data);
   void writeDouble(uint8_t port, double data);
-  void writeString(uint8_t port, String data);
+  void writeString(uint8_t port, const char* data);
 
 private:
   turipDeviceAddr addr;

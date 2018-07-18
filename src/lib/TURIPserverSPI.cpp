@@ -14,30 +14,29 @@ cl_TURIPserverSPI::cl_TURIPserverSPI(){
 }
 
 void cl_TURIPserverSPI::begin(){
-#if defined(AVR_UNO) || defined(AVR_PRO)
+  #ifdef __AVR__
   // Setting SPI
   DDRB = DDRB | 0B00010000;  // Set "OUTPUT" MISO
   PORTB = PORTB | 0B00011000;  // Pullup MISO,MOSI
   SPDR = 0xff;
   SPCR = _BV(SPE) | _BV(SPIE);
-
   // Setting SS interrupt
   // PCMSK0 = _BV(PCINT1);
   // PCICR = PCICR | _BV(PCIE0);
-
   sei();
-#endif
+  #endif
 }
 
 void cl_TURIPserverSPI::update(){
-#if defined(AVR_UNO) || defined(AVR_PRO)
   // If SPI is desabled, buffers are reseted.
   if(digitalRead(TURIPSERVER_PIN_SS) == HIGH){
     rxBuf.writePoint = 0;
     rxBuf.readPoint = 0;
     txBuf.writePoint = 0;
     txBuf.readPoint = 0;
+    #ifdef __AVR__
     SPDR = 0xff;
+    #endif
     return;
   }
 
@@ -105,5 +104,4 @@ void cl_TURIPserverSPI::update(){
       interrupts();
     }
   }
-#endif
 }

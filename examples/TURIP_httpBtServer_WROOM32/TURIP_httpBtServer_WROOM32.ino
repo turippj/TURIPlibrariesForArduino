@@ -3,16 +3,18 @@
 #include <TURIPshell.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
-
 #include "EEPROM.h"
+#include "BluetoothSerial.h"
 
 #define DEBUG
 
-uint32_t TURIP_MODEL = 0x8267;
+uint32_t TURIP_MODEL = 0x0;
 uint32_t TURIP_SERIAL = 0x0;
 
 TURIPport* portSsid;
 TURIPport* portPassword;
+
+BluetoothSerial SerialBT;
 
 boolean wifiSettingIsChanged = false;
 boolean webserverIsRunning = false;
@@ -31,7 +33,12 @@ WiFiServer server(80);
 void setup() {
   TURIP_MODEL = (uint32_t)(ESP.getEfuseMac() >> 32);
   TURIP_SERIAL = (uint32_t)ESP.getEfuseMac();
-  Serial.begin(115200);
+//  Serial.begin(115200);
+  String string_btName = "TPOT-" + String(TURIP_MODEL, HEX) + String(TURIP_SERIAL, HEX);
+  char btName[64];
+  string_btName.toCharArray(btName, 64);
+  Serial.begin(9600);
+  SerialBT.begin(btName);
   EEPROM.begin(EEPROM_SIZE);
 
   TURIPserver.begin(TURIP_MODEL, TURIP_SERIAL);
@@ -50,8 +57,8 @@ void setup() {
 
   readWifiSettings();
 
-  Serial.println(rom.data.ssid);
-  Serial.println(rom.data.pass);
+//  Serial.println(rom.data.ssid);
+//  Serial.println(rom.data.pass);
 
   if(rom.data.ssid[0] != '\0' && rom.data.pass[0] != '\0'){
     WiFi.begin(rom.data.ssid, rom.data.pass);
@@ -92,6 +99,7 @@ void loop() {
   }
 
   serialEvent();
+  btEvent();
 }
 
 void setWifiSsid(){
@@ -168,10 +176,17 @@ void webserver(){
   if(pathRootIndex != -1){
     path.remove(0, 6);
     Serial.println(path);
+    char request[64];
+    char response[128];
+    path.toCharArray(request, 64);
     if(method.equals("get")){
-      body += TURIPshell(path);
+      TURIPshell(request, response, 128);
+      body += response;
     }else if(method.equals("post")){
-      body += TURIPshell(path + String(" " + post));
+      path += String(" " + post);
+      path.toCharArray(request, 64);
+      TURIPshell(request, response, 128);
+      body += response;
     }
   }else{
 #ifdef DEBUG
@@ -211,7 +226,33 @@ void serialEvent(){
     char c = Serial.read();
     if(c == 0x0a){  // 0x0a: LF
       strBuf.trim();
-      Serial.println(TURIPshell(strBuf));
+      if(strBuf.length() > 0){
+        char response[128];
+        char request[64];
+        strBuf.toCharArray(request, 64);
+        TURIPshell(request, response, 127);
+        Serial.println(response);
+      }
+      strBuf = "";
+    }else{
+      strBuf += c;
+    }
+  }
+}
+
+void btEvent(){
+  static String strBuf;
+  while(SerialBT.available()){
+    char c = SerialBT.read();
+    if(c == 0x0a){  // 0x0a: LF
+      strBuf.trim();
+      if(strBuf.length() > 0){
+        char response[128];
+        char request[64];
+        strBuf.toCharArray(request, 64);
+        TURIPshell(request, response, 127);
+        SerialBT.println(response);
+      }
       strBuf = "";
     }else{
       strBuf += c;

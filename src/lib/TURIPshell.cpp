@@ -1,15 +1,6 @@
 #include "TURIPshell.h"
 
-String TURIPshell(String line){
-  size_t strBufLen = line.length();
-  char* strBuf = new char[line.length() + 1];
-  line.toCharArray(strBuf, line.length() + 1);
-  String response = TURIPshell(strBuf);
-  delete[] strBuf;
-  return response;
-}
-
-void TURIPshell(const char* line, char* response, size_t response_maxlength){
+void TURIPshell(const char* line, char* output, size_t maxLength){
   turipShellCommand cmd = turipShellCommandParser(line);
   turipShellResponse response;
   response.id = 0;
@@ -24,41 +15,47 @@ void TURIPshell(const char* line, char* response, size_t response_maxlength){
   }else{
     response.statusCode = 400;
   }
-  String strResponse;
-  strResponse = "{\"status\":";
+  char id[20];
+  output[0] = '\0';
+  strcat(output, "{\"status\":");
   if(cmd.depth == 0 && cmd.method == TURIP_METHOD_GET){
-    strResponse += "200,\"protocol\":\"TURIP\",\"id\":\"";
-    strResponse += turipIdIntToStr(TURIPserver.myId);
-    strResponse += "\"";
+    strcat(output, "200,\"protocol\":\"TURIP\",\"id\":\"");
+    turipIdIntToStr(TURIPserver.myId, id);
+    strcat(output, id);
+    strcat(output, "\"");
     TURIPclient.scan();
     if(TURIPclient.numofDevices > 0){
-      strResponse += ",\"bridge\":[";
+      strcat(output, ",\"bridge\":[");
       for(int i = 0;;){
-        strResponse += "\"";
-        strResponse += turipIdIntToStr(TURIPclient.devices[i].id);
-        strResponse += "\"";
+        strcat(output, "\"");
+        turipIdIntToStr(TURIPclient.devices[i].id, id);
+        strcat(output, id);
+        strcat(output, "\"");
         i++;
         if(i == TURIPclient.numofDevices) break;
-        strResponse += ",";
+        strcat(output, ",");
       }
-      strResponse += "]";
+      strcat(output, "]");
     }
   }else{
-    strResponse += response.statusCode;
+    char buf[8];
+    sprintf(buf, "%d", response.statusCode);
+    strcat(output, buf);
     if(response.id != 0){
-      strResponse += ",\"id\":\"";
-      strResponse += turipIdIntToStr(response.id);
-      strResponse += "\"";
+      strcat(output, ",\"id\":\"");
+      turipIdIntToStr(TURIPserver.myId, id);
+      strcat(output, id);
+      strcat(output, "\"");
     }
     if(response.statusCode == 200){
-      strResponse += ",\"port\":";
-      strResponse += response.port;
-      strResponse += ",\"data\":";
-      strResponse += response.data;
+      strcat(output, ",\"port\":");
+      sprintf(buf, "%d", response.port);
+      strcat(output, buf);
+      strcat(output, ",\"data\":");
+      strcat(output, response.data);
     }
   }
-  strResponse += "}";
-  return strResponse;
+  strcat(output, "}");
 }
 
 turipShellResponse turipShellLocalGet(turipShellCommand* cmd){
@@ -72,6 +69,7 @@ turipShellResponse turipShellLocalGet(turipShellCommand* cmd){
     return response;
   }
   uint8_t portData[64];
+  char s_portData[64];
   p->transmit(portData, 64);
 
   switch(p->type){
@@ -80,30 +78,30 @@ turipShellResponse turipShellLocalGet(turipShellCommand* cmd){
       break;
     case TURIP_TYPE_BOOL:
       if(portData[0] == 0){
-        response.data = "false";
+        sprintf(response.data, "false");
       } else if(portData[0] == 1) {
-        response.data = "true";
+        sprintf(response.data, "true");
       } else {
         response.statusCode = 500;
       }
       break;
     case TURIP_TYPE_UINT8:
-      response.data = *((uint8_t*)portData);
+      sprintf(response.data, "%d", *((uint8_t*)portData));
       break;
     case TURIP_TYPE_INT8:
-      response.data = *((int8_t*)portData);
+      sprintf(response.data, "%d", *((int8_t*)portData));
       break;
     case TURIP_TYPE_UINT16:
-      response.data = *((uint16_t*)portData);
+      sprintf(response.data, "%d", *((uint16_t*)portData));
       break;
     case TURIP_TYPE_INT16:
-      response.data = *((int16_t*)portData);
+      sprintf(response.data, "%d", *((int16_t*)portData));
       break;
     case TURIP_TYPE_UINT32:
-      response.data = *((uint32_t*)portData);
+      sprintf(response.data, "%d", *((uint32_t*)portData));
       break;
     case TURIP_TYPE_INT32:
-      response.data = *((int32_t*)portData);
+      sprintf(response.data, "%d", *((int32_t*)portData));
       break;
     // case TURIP_TYPE_UINT64:
     //   response.data = *((uint64_t*)portData);
@@ -112,15 +110,13 @@ turipShellResponse turipShellLocalGet(turipShellCommand* cmd){
     //   response.data = *((int64_t*)portData);
     //   break;
     case TURIP_TYPE_FLOAT:
-      response.data = *((float*)portData);
+      sprintf(response.data, "%f", *((float*)portData));
       break;
-    case TURIP_TYPE_DOUBLE:
-      response.data = *((double*)portData);
-      break;
+    // case TURIP_TYPE_DOUBLE:
+    //   response.data = *((double*)portData);
+    //   break;
     case TURIP_TYPE_STRING:
-      response.data = "\"";
-      response.data += (char*)portData;
-      response.data += "\"";
+      sprintf(response.data, "\"%s\"", (char*)portData);
       break;
     default:
       response.statusCode = 500;
@@ -158,10 +154,10 @@ turipShellResponse turipShellLocalPost(turipShellCommand* cmd){
     case TURIP_TYPE_BOOL:
       if(!strcmp(cmd->data, "false")){
         buf.i8 = 0;
-        response.data = "false";
+        sprintf(response.data, "false");
       } else if(!strcmp(cmd->data, "true")){
         buf.i8 = 1;
-        response.data = "true";
+        sprintf(response.data, "true");
       } else {
         response.statusCode = 400;
         break;
@@ -171,32 +167,32 @@ turipShellResponse turipShellLocalPost(turipShellCommand* cmd){
     case TURIP_TYPE_UINT8:
       buf.ui8 = (uint8_t)atoi(cmd->data);
       p->receive(&buf.ui8);
-      response.data = buf.ui8;
+      sprintf(response.data, "%d", buf.ui8);
       break;
     case TURIP_TYPE_INT8:
       buf.i8 = (int8_t)atoi(cmd->data);
       p->receive(&buf.ui8);
-      response.data = buf.i8;
+      sprintf(response.data, "%d", buf.i8);
       break;
     case TURIP_TYPE_UINT16:
       buf.ui16 = (uint16_t)atoi(cmd->data);
       p->receive(&buf.ui8);
-      response.data = buf.ui16;
+      sprintf(response.data, "%d", buf.ui16);
       break;
     case TURIP_TYPE_INT16:
       buf.i16 = (int16_t)atoi(cmd->data);
       p->receive(&buf.ui8);
-      response.data = buf.i16;
+      sprintf(response.data, "%d", buf.i16);
       break;
     case TURIP_TYPE_UINT32:
       buf.ui32 = (uint32_t)atoi(cmd->data);
       p->receive(&buf.ui8);
-      response.data = buf.ui32;
+      sprintf(response.data, "%d", buf.ui32);
       break;
     case TURIP_TYPE_INT32:
       buf.i32 = (int32_t)atoi(cmd->data);
       p->receive(&buf.ui8);
-      response.data = buf.i32;
+      sprintf(response.data, "%d", buf.i32);
       break;
     // case TURIP_TYPE_UINT64:
     //   buf.ui64 = (uint64_t)atoi(cmd->data);
@@ -211,18 +207,16 @@ turipShellResponse turipShellLocalPost(turipShellCommand* cmd){
     case TURIP_TYPE_FLOAT:
       buf.f = (float)atof(cmd->data);
       p->receive(&buf.ui8);
-      response.data = buf.f;
+      sprintf(response.data, "%f", buf.f);
       break;
-    case TURIP_TYPE_DOUBLE:
-      buf.d = (double)atof(cmd->data);
-      p->receive(&buf.ui8);
-      response.data = buf.d;
-      break;
+    // case TURIP_TYPE_DOUBLE:
+    //   buf.d = (double)atof(cmd->data);
+    //   p->receive(&buf.ui8);
+    //   response.data = buf.d;
+    //   break;
     case TURIP_TYPE_STRING:
       p->receive((uint8_t*)cmd->data);
-      response.data = "\"";
-      response.data += cmd->data;
-      response.data += "\"";
+      sprintf(response.data,  "\"%s\"", cmd->data);
       break;
     default:
       response.statusCode = 500;
@@ -242,22 +236,22 @@ turipShellResponse turipShellBridgeGet(turipShellCommand* cmd){
 
     switch(dev.getType(cmd->port)){
       case TURIP_TYPE_UINT8:
-        response.data = dev.readUint8(cmd->port);
+        sprintf(response.data,  "%d", dev.readUint8(cmd->port));
         break;
       case TURIP_TYPE_INT8:
-        response.data = dev.readInt8(cmd->port);
+        sprintf(response.data,  "%d", dev.readInt8(cmd->port));
         break;
       case TURIP_TYPE_UINT16:
-        response.data = dev.readUint16(cmd->port);
+        sprintf(response.data,  "%d", dev.readUint16(cmd->port));
         break;
       case TURIP_TYPE_INT16:
-        response.data = dev.readInt16(cmd->port);
+        sprintf(response.data,  "%d", dev.readInt16(cmd->port));
         break;
       case TURIP_TYPE_UINT32:
-        response.data = dev.readUint32(cmd->port);
+        sprintf(response.data,  "%d", dev.readUint32(cmd->port));
         break;
       case TURIP_TYPE_INT32:
-        response.data = dev.readInt32(cmd->port);
+        sprintf(response.data,  "%d", dev.readInt32(cmd->port));
         break;
       // case TURIP_TYPE_UINT64:
       //   response.data = dev.readUint64(cmd->port);
@@ -266,15 +260,15 @@ turipShellResponse turipShellBridgeGet(turipShellCommand* cmd){
       //   response.data = dev.readInt64(cmd->port);
       //   break;
       case TURIP_TYPE_FLOAT:
-        response.data = dev.readFloat(cmd->port);
+        sprintf(response.data,  "%f", dev.readFloat(cmd->port));
         break;
-      case TURIP_TYPE_DOUBLE:
-        response.data = dev.readDouble(cmd->port);
-        break;
+      // case TURIP_TYPE_DOUBLE:
+      //   response.data = dev.readDouble(cmd->port);
+      //   break;
       case TURIP_TYPE_STRING:
-        response.data = "\"";
-        response.data += dev.readString(cmd->port);
-        response.data += "\"";
+        char sbuf[64];
+        dev.readString(cmd->port, sbuf, 64);
+        sprintf(response.data,  "\"%s\"", sbuf);
         break;
       default:
         response.statusCode = 500;
@@ -294,7 +288,7 @@ turipShellResponse turipShellBridgePost(turipShellCommand* cmd){
     response.statusCode = 200;
     response.id = cmd->id;
     response.port = cmd->port;
-    response.data = cmd->data;
+    sprintf(response.data,  "%s", cmd->data);
     union {
       uint8_t ui8;
       uint16_t ui16;
@@ -312,32 +306,32 @@ turipShellResponse turipShellBridgePost(turipShellCommand* cmd){
       case TURIP_TYPE_UINT8:
         buf.ui8 = (uint8_t)atoi(cmd->data);
         dev.writeUint8(cmd->port, buf.ui8);
-        response.data = buf.ui8;
+        sprintf(response.data,  "%d", buf.ui8);
         break;
       case TURIP_TYPE_INT8:
         buf.i8 = (int8_t)atoi(cmd->data);
         dev.writeInt8(cmd->port, buf.i8);
-        response.data = buf.i8;
+        sprintf(response.data,  "%d", buf.i8);
         break;
       case TURIP_TYPE_UINT16:
         buf.ui16 = (uint16_t)atoi(cmd->data);
         dev.writeUint16(cmd->port, buf.ui16);
-        response.data = buf.ui16;
+        sprintf(response.data,  "%d", buf.ui16);
         break;
       case TURIP_TYPE_INT16:
         buf.i16 = (int16_t)atoi(cmd->data);
         dev.writeInt16(cmd->port, buf.i16);
-        response.data = buf.i16;
+        sprintf(response.data,  "%d", buf.i16);
         break;
       case TURIP_TYPE_UINT32:
         buf.ui32 = (uint32_t)atoi(cmd->data);
         dev.writeUint32(cmd->port, buf.ui32);
-        response.data = buf.ui32;
+        sprintf(response.data,  "%d", buf.ui32);
         break;
       case TURIP_TYPE_INT32:
         buf.i32 = (int32_t)atoi(cmd->data);
         dev.writeInt32(cmd->port, buf.i32);
-        response.data = buf.i32;
+        sprintf(response.data,  "%d", buf.i32);
         break;
       // case TURIP_TYPE_UINT64:
       //   buf.ui64 = (uint64_t)atoi(cmd->data);
@@ -352,18 +346,16 @@ turipShellResponse turipShellBridgePost(turipShellCommand* cmd){
       case TURIP_TYPE_FLOAT:
         buf.f = (float)atof(cmd->data);
         dev.writeFloat(cmd->port, buf.f);
-        response.data = buf.f;
+        sprintf(response.data,  "%f", buf.f);
         break;
-      case TURIP_TYPE_DOUBLE:
-        buf.d = (double)atof(cmd->data);
-        dev.writeDouble(cmd->port, buf.d);
-        response.data = buf.d;
-        break;
+      // case TURIP_TYPE_DOUBLE:
+      //   buf.d = (double)atof(cmd->data);
+      //   dev.writeDouble(cmd->port, buf.d);
+      //   response.data = buf.d;
+      //   break;
       case TURIP_TYPE_STRING:
         dev.writeString(cmd->port, cmd->data);
-        response.data = "\"";
-        response.data += cmd->data;
-        response.data += "\"";
+        sprintf(response.data,  "\"%s\"", cmd->data);
         break;
       default:
         response.statusCode = 500;
@@ -381,24 +373,29 @@ uint64_t turipIdStrToInt(const char* id){
     fullid[i] = '0';
   }
   fullid[16] = '\0';
-  String bufStr = id;
-  int bufStlLength = bufStr.length();
-  int separatorIndex = bufStr.indexOf('-');
+  int bufStlLength = strlen(id);
+  int separatorIndex = -1;
+  for (size_t i = 0; i < bufStlLength; i++) {
+    if(id[i] == '-'){
+      separatorIndex = i;
+      break;
+    }
+  }
 
   int index = 15;
   if(separatorIndex != -1){
     for (int i = bufStlLength - 1; i > separatorIndex; i--) {
-      fullid[index--] = bufStr[i];
+      fullid[index--] = id[i];
       if(index == 7) break;
     }
     index = 7;
     for (int i = separatorIndex - 1; i >= 0; i--) {
-      fullid[index--] = bufStr[i];
+      fullid[index--] = id[i];
       if(index < 0) break;
     }
   }else{
     for (int i = bufStlLength - 1; i >= 0; i--) {
-      fullid[index--] = bufStr[i];
+      fullid[index--] = id[i];
       if(index < 0) break;
     }
   }
@@ -429,62 +426,52 @@ uint64_t turipIdStrToInt(const char* id){
   return _id;
 }
 
-String turipIdIntToStr(uint64_t id){
+void turipIdIntToStr(uint64_t id, char* output){
   uint32_t model = id >> 32;
   uint32_t serial = (uint32_t)id;
-  char c[18];
-  sprintf(c, "%x-%x", model, serial);
-  String strid = c;
-  return strid;
+  sprintf(output, "%x-%x", model, serial);
 }
 
 turipShellCommand turipShellCommandParser(const char* line){
   turipShellCommand parsed;
-  parsed.method = TURIP_METHOD_UNKOWN;
-  parsed.path_depth = 0;
-  size_t line_length = strlen(line);
-  size_t line_ptr = 0;
-  char* cBuf = parsed.data;
-  const size_t cBuf_maxlength = 64;
-  size_t cBuf_length = 0;
+  int numofArgs = 0;
+  char* args[5];
+  int lineLength = strlen(line);
+  char* raw = new char[lineLength + 1];
+  strcpy(raw, line);
 
-  // Looking for root path
-  for(; line_ptr < line_length; line_ptr++){
-    if(line[line_ptr] == '/'){
-      parsed.method = TURIP_METHOD_GET;
-      break;
-    }
-  }
-
-  // Get path
-  if(parsed.method == TURIP_METHOD_GET){
-    for(; line_ptr < line_length; line_ptr++){
-      if(line[line_ptr] == '/'){
-        if(parsed.path_depth < 4){
-          if(!turipId_atoi(&line[line_ptr + 1], &parsed.path[parsed.path_depth])) parsed.path_depth++;
+  for (size_t i = 0; i < lineLength; i++) {
+    if(raw[i] == '\"'){
+      raw[i] = '\0';
+      args[numofArgs] = &raw[++i];
+      numofArgs++;
+      for(i++; i < lineLength; i++){
+        if (raw[i] == '\"'){
+          raw[i] = '\0';
+          break;
         }
-      }else if(line[line_ptr] == ' ') break;
-    }
-
-    // Looking for data
-    for(; line_ptr < line_length; line_ptr++){
-      if(line[line_ptr] > ' '){
-        parsed.method = TURIP_METHOD_POST;
-        break;
       }
+    }else if(raw[i] == '\''){
+      args[numofArgs] = &raw[i];
+      numofArgs++;
+      for(i++; i < lineLength; i++){
+        if (raw[i] == '\'') break;
+      }
+    }else if(raw[i] != ' '){
+      args[numofArgs] = &raw[i];
+      numofArgs++;
+      for(; i < lineLength; i++){
+        if(raw[i] == ' ') break;
+      }
+    }
+    if (raw[i] == ' '){
+      raw[i] = '\0';
     }
   }
 
-  // Get data
-  if(parsed.method == TURIP_METHOD_POST){
-    size_t dataBegin_ptr = line_ptr;
-    for(; line_ptr < line_length; line_ptr++){
-      if(line[line_ptr] <= ' '){
-        break;
-      }
-    }
-    memcpy(parsed.data, &line[dataBegin_ptr], dataEnd_ptr - line_ptr);
-  }
+  parsed.method = TURIP_METHOD_UNKOWN;
+  parsed.data = NULL;
+  char* path = NULL;
 
   if(args[0][0] == '/'){
     path = args[0];

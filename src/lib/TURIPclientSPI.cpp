@@ -9,15 +9,15 @@ cl_TURIPclientSPI::cl_TURIPclientSPI(){
 }
 
 void cl_TURIPclientSPI::begin(){
-  #ifdef defined(ESP8266)
+  #ifdef ESP8266
   SPI.setFrequency(200000);
   SPI.setDataMode(SPI_MODE0);
   SPI.begin();
-  #elif defined(ESP32)
+  #elif ESP32
   SPI.setFrequency(200000);
   SPI.setDataMode(SPI_MODE0);
   SPI.begin(17, 18, 16, 19); // Temporal setting for test device.
-  #elif defined(AVR_UNO) || defined(AVR_PRO)
+  #elif __AVR__
   SPI.setClockDivider(SPI_CLOCK_DIV16);
   SPI.begin();
   #endif
