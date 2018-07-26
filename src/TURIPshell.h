@@ -10,11 +10,9 @@
 
 typedef struct {
   int method;
-  int port;
-  int depth;
-  uint64_t id;
-  char* data;
-  char** raw;
+  size_t pathLength;
+  uint64_t path[4];
+  char data[64];
 } turipShellCommand;
 
 typedef struct {
@@ -25,11 +23,11 @@ typedef struct {
 } turipShellResponse;
 
 void TURIPshell(const char* line, char* output, size_t maxLength);
-turipShellCommand turipShellCommandParser(const char* line);
-turipShellResponse turipShellLocalGet(turipShellCommand* cmd);
-turipShellResponse turipShellLocalPost(turipShellCommand* cmd);
-turipShellResponse turipShellBridgeGet(turipShellCommand* cmd);
-turipShellResponse turipShellBridgePost(turipShellCommand* cmd);
+void turipShellCommandParser(const char* line, turipShellCommand* parsed);
+void turipShellLocalGet(turipShellCommand* cmd, turipShellResponse* response);
+void turipShellLocalPost(turipShellCommand* cmd, turipShellResponse* response);
+void turipShellBridgeGet(turipShellCommand* cmd, turipShellResponse* response);
+void turipShellBridgePost(turipShellCommand* cmd, turipShellResponse* response);
 void turipIdIntToStr(uint64_t id, char* output);
 uint64_t turipIdStrToInt(const char* id);
 
