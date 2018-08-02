@@ -28,7 +28,13 @@ void serialEvent(){
     char c = Serial.read();
     if(c == 0x0a){  // 0x0a: LF
       strBuf.trim();
-      Serial.println(TURIPshell(strBuf));
+      if(strBuf.length() > 0){
+          char response[128];
+          char request[64];
+          strBuf.toCharArray(request, 64);
+          TURIPshell(request, response, 127);
+          Serial.println(response);
+      }
       strBuf = "";
     }else{
       strBuf += c;
