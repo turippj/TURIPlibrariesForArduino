@@ -23,21 +23,19 @@ void loop() {
 }
 
 void serialEvent(){
-  static String strBuf;
+  static char strBuf[128];
+  static size_t bufSize = 0;
   while(Serial.available()){
     char c = Serial.read();
     if(c == 0x0a){  // 0x0a: LF
-      strBuf.trim();
-      if(strBuf.length() > 0){
-          char response[128];
-          char request[64];
-          strBuf.toCharArray(request, 64);
-          TURIPshell(request, response, 127);
-          Serial.println(response);
-      }
-      strBuf = "";
+      strBuf[bufSize] = '\0';
+      char response[128];
+      TURIPshell(strBuf, response, 128);
+      Serial.println(response);
+      bufSize = 0;
     }else{
-      strBuf += c;
+      strBuf[bufSize++] = c;
+      if(bufSize == 128) bufSize = 0;
     }
   }
 }

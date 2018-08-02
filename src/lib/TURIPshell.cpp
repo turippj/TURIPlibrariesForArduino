@@ -7,12 +7,16 @@ void TURIPshell(const char* line, char* output, size_t maxLength){
   response.id = 0;
   if(cmd.pathLength == 1 && cmd.method == TURIP_METHOD_GET){
     turipShellLocalGet(&cmd, &response);
+    // Serial.print("Get[Local]: ");
   }else if(cmd.pathLength == 1 && cmd.method == TURIP_METHOD_POST){
     turipShellLocalPost(&cmd, &response);
+    // Serial.print("Post[Local]: ");
   }else if(cmd.pathLength == 2 && cmd.method == TURIP_METHOD_GET){
     turipShellBridgeGet(&cmd, &response);
+    // Serial.print("Get[Bridge]: ");
   }else if(cmd.pathLength == 2 && cmd.method == TURIP_METHOD_POST){
     turipShellBridgePost(&cmd, &response);
+    // Serial.print("Post[Bridge]: ");
   }else{
     response.statusCode = 400;
   }
@@ -454,7 +458,7 @@ void turipShellCommandParser(const char* line, turipShellCommand* parsed){
         parsed->path[parsed->pathLength++] = turipIdStrToInt(buf);
       }
     }
-    if(line[lineReadPoint] == ' '){
+    if(line[lineReadPoint] == ' ' || line[lineReadPoint] == '\0'){
       break;
     }
   }
