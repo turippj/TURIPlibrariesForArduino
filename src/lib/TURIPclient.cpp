@@ -63,7 +63,7 @@ int8_t TURIPdevice::readInt8(uint8_t port){
 
 int16_t TURIPdevice::readInt16(uint8_t port){
   if(addr.interface == NULL) return 0;
-  uint8_t data;
+  int16_t data;
   addr.interface->read(addr.id, port, TURIP_TYPE_INT16, &data);
   return data;
 }
