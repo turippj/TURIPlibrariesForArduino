@@ -424,9 +424,8 @@ uint64_t turipIdStrToInt(const char* id){
 }
 
 void turipIdIntToStr(uint64_t id, char* output){
-  uint32_t model = id >> 32;
-  uint32_t serial = (uint32_t)id;
-  sprintf(output, "%x-%x", model, serial);
+  uint8_t* _id = (uint8_t*)(&id);
+  sprintf(output, "%02x%02x%02x%02x-%02x%02x%02x%02x", _id[7], _id[6], _id[5], _id[4], _id[3], _id[2], _id[1], _id[0]);
 }
 
 void turipShellCommandParser(const char* line, turipShellCommand* parsed){

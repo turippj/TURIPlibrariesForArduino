@@ -20,7 +20,7 @@ TURIPport::TURIPport(uint8_t portNum){
 int8_t TURIPport::readInt8(){
   if(type == TURIP_TYPE_INT8){
     int8_t buf;
-    memcpy(&buf, cache, sizeof(int8_t));
+    memcpy(&buf, cache, cacheSize);
     return buf;
   }
   return 0;
@@ -29,7 +29,7 @@ int8_t TURIPport::readInt8(){
 int16_t TURIPport::readInt16(){
   if(type == TURIP_TYPE_INT16){
     int16_t buf;
-    memcpy(&buf, cache, sizeof(int16_t));
+    memcpy(&buf, cache, cacheSize);
     return buf;
   }
   return 0;
@@ -38,7 +38,7 @@ int16_t TURIPport::readInt16(){
 int32_t TURIPport::readInt32(){
   if(type == TURIP_TYPE_INT32){
     int32_t buf;
-    memcpy(&buf, cache, sizeof(int32_t));
+    memcpy(&buf, cache, cacheSize);
     return buf;
   }
   return 0;
@@ -47,7 +47,7 @@ int32_t TURIPport::readInt32(){
 int64_t TURIPport::readInt64(){
   if(type == TURIP_TYPE_INT64){
     int64_t buf;
-    memcpy(&buf, cache, sizeof(int64_t));
+    memcpy(&buf, cache, cacheSize);
     return buf;
   }
   return 0;
@@ -56,7 +56,7 @@ int64_t TURIPport::readInt64(){
 uint8_t TURIPport::readUint8(){
   if(type == TURIP_TYPE_UINT8){
     uint8_t buf;
-    memcpy(&buf, cache, sizeof(uint8_t));
+    memcpy(&buf, cache, cacheSize);
     return buf;
   }
   return 0;
@@ -65,7 +65,7 @@ uint8_t TURIPport::readUint8(){
 uint16_t TURIPport::readUint16(){
   if(type == TURIP_TYPE_UINT16){
     uint16_t buf;
-    memcpy(&buf, cache, sizeof(uint16_t));
+    memcpy(&buf, cache, cacheSize);
     return buf;
   }
   return 0;
@@ -74,7 +74,7 @@ uint16_t TURIPport::readUint16(){
 uint32_t TURIPport::readUint32(){
   if(type == TURIP_TYPE_UINT32){
     uint32_t buf;
-    memcpy(&buf, cache, sizeof(uint32_t));
+    memcpy(&buf, cache, cacheSize);
     return buf;
   }
   return 0;
@@ -83,7 +83,7 @@ uint32_t TURIPport::readUint32(){
 uint64_t TURIPport::readUint64(){
   if(type == TURIP_TYPE_UINT64){
     uint64_t buf;
-    memcpy(&buf, cache, sizeof(uint64_t));
+    memcpy(&buf, cache, cacheSize);
     return buf;
   }
   return 0;
@@ -92,7 +92,7 @@ uint64_t TURIPport::readUint64(){
 float TURIPport::readFloat(){
   if(type == TURIP_TYPE_FLOAT){
     float buf;
-    memcpy(&buf, cache, sizeof(float));
+    memcpy(&buf, cache, cacheSize);
     return buf;
   }
   return 0;
@@ -101,7 +101,7 @@ float TURIPport::readFloat(){
 double TURIPport::readDouble(){
   if(type == TURIP_TYPE_DOUBLE){
     double buf;
-    memcpy(&buf, cache, sizeof(double));
+    memcpy(&buf, cache, cacheSize);
     return buf;
   }
   return 0;
@@ -127,7 +127,7 @@ void TURIPport::writeInt8(int8_t data){
     cache = new uint8_t[cacheSize];
     type = TURIP_TYPE_INT8;
   }
-  memcpy(cache, &data, sizeof(int8_t));
+  memcpy(cache, &data, cacheSize);
 }
 
 void TURIPport::writeInt16(int16_t data){
@@ -142,7 +142,7 @@ void TURIPport::writeInt16(int16_t data){
     cache = new uint8_t[cacheSize];
     type = TURIP_TYPE_INT16;
   }
-  memcpy(cache, &data, sizeof(int16_t));
+  memcpy(cache, &data, cacheSize);
 }
 
 void TURIPport::writeInt32(int32_t data){
@@ -157,7 +157,7 @@ void TURIPport::writeInt32(int32_t data){
     cache = new uint8_t[cacheSize];
     type = TURIP_TYPE_INT32;
   }
-  memcpy(cache, &data, sizeof(int32_t));
+  memcpy(cache, &data, cacheSize);
 }
 
 void TURIPport::writeInt64(int64_t data){
@@ -172,7 +172,7 @@ void TURIPport::writeInt64(int64_t data){
     cache = new uint8_t[cacheSize];
     type = TURIP_TYPE_INT64;
   }
-  memcpy(cache, &data, sizeof(int64_t));
+  memcpy(cache, &data, cacheSize);
 }
 
 void TURIPport::writeUint8(uint8_t data){
@@ -187,7 +187,7 @@ void TURIPport::writeUint8(uint8_t data){
     cache = new uint8_t[cacheSize];
     type = TURIP_TYPE_UINT8;
   }
-  memcpy(cache, &data, sizeof(uint8_t));
+  memcpy(cache, &data, cacheSize);
 }
 
 void TURIPport::writeUint16(uint16_t data){
@@ -202,7 +202,7 @@ void TURIPport::writeUint16(uint16_t data){
     cache = new uint8_t[cacheSize];
     type = TURIP_TYPE_UINT16;
   }
-  memcpy(cache, &data, sizeof(uint16_t));
+  memcpy(cache, &data, cacheSize);
 }
 
 void TURIPport::writeUint32(uint32_t data){
@@ -217,7 +217,7 @@ void TURIPport::writeUint32(uint32_t data){
     cache = new uint8_t[cacheSize];
     type = TURIP_TYPE_UINT32;
   }
-  memcpy(cache, &data, sizeof(uint32_t));
+  memcpy(cache, &data, cacheSize);
 }
 
 void TURIPport::writeUint64(uint64_t data){
@@ -232,7 +232,7 @@ void TURIPport::writeUint64(uint64_t data){
     cache = new uint8_t[cacheSize];
     type = TURIP_TYPE_UINT64;
   }
-  memcpy(cache, &data, sizeof(uint64_t));
+  memcpy(cache, &data, cacheSize);
 }
 
 void TURIPport::writeFloat(float data){
@@ -247,7 +247,7 @@ void TURIPport::writeFloat(float data){
     cache = new uint8_t[cacheSize];
     type = TURIP_TYPE_FLOAT;
   }
-  memcpy(cache, &data, sizeof(float));
+  memcpy(cache, &data, cacheSize);
 }
 
 void TURIPport::writeDouble(double data){
@@ -262,7 +262,7 @@ void TURIPport::writeDouble(double data){
     cache = new uint8_t[cacheSize];
     type = TURIP_TYPE_DOUBLE;
   }
-  memcpy(cache, &data, sizeof(double));
+  memcpy(cache, &data, cacheSize);
 }
 
 void TURIPport::writeString(String data){
